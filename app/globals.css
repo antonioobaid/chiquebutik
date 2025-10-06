@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-=======
+
 /* Tailwind-importer */
 @tailwind base;
 @tailwind components;
@@ -41,4 +37,3 @@ body {
 .text-custom {
   color: var(--foreground);
 }
->>>>>>> 0c64e0e (Initial commit – ChiqueButik projekt)
