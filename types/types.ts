@@ -1,3 +1,5 @@
+
+// fil: types/types.ts
 export interface Product {
   id: string
   title: string

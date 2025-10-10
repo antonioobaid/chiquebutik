@@ -3,19 +3,21 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import ProductCard from '../../components/ProductCard'
+import { Product } from '@/types/types'
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState<Product[]>([])
 
   useEffect(() => {
     async function fetchProducts() {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+
       if (error) {
         console.error(error)
-      } else {
-        setProducts(data)
+      } else if (data) {
+        setProducts(data as Product[])
       }
     }
 
