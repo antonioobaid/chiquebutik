@@ -1,14 +1,13 @@
 'use client'
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { Product } from "@/types/types"; // Importera din Product-typ
-
+import { Product } from "@/types/types"; 
 import { v4 as uuidv4 } from "uuid";
 
 interface CartContextType {
   cartItems: Product[];
   addToCart: (product: Product) => void;
-  removeFromCart: (id: string | number) => void;
+  removeFromCart: (cartId: string) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -20,17 +19,12 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [cartItems, setCartItems] = useState<Product[]>([]);
 
-  /*function addToCart(product: Product) {
-    setCartItems(prev => [...prev, product , ]);
-  }*/
+  function addToCart(product: Product) {
+    setCartItems(prev => [...prev, { ...product, cartId: uuidv4() }]);
+  }
 
-    function addToCart(product: Product) {
-  setCartItems(prev => [...prev, { ...product, cartId: uuidv4() }]);
-}
-  
-
-  function removeFromCart(id: string | number) {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  function removeFromCart(cartId: string) {
+    setCartItems(prev => prev.filter(item => item.cartId !== cartId));
   }
 
   return (

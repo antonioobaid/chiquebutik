@@ -32,7 +32,7 @@ export default function CartPage() {
               </div>
             </div>
             <button
-              onClick={() => removeFromCart(product.id)}
+              onClick={() => removeFromCart(product.cartId!)}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
             >
               Ta bort
