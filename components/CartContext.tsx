@@ -2,7 +2,8 @@
 
 import { createContext, useContext, useState, ReactNode } from "react";
 import { Product } from "@/types/types"; // Importera din Product-typ
-;
+
+import { v4 as uuidv4 } from "uuid";
 
 interface CartContextType {
   cartItems: Product[];
@@ -19,11 +20,13 @@ interface CartProviderProps {
 export function CartProvider({ children }: CartProviderProps) {
   const [cartItems, setCartItems] = useState<Product[]>([]);
 
-  function addToCart(product: Product) {
+  /*function addToCart(product: Product) {
     setCartItems(prev => [...prev, product , ]);
-  }
+  }*/
 
- 
+    function addToCart(product: Product) {
+  setCartItems(prev => [...prev, { ...product, cartId: uuidv4() }]);
+}
   
 
   function removeFromCart(id: string | number) {

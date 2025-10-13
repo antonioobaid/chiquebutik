@@ -11,4 +11,5 @@ export interface Product {
   color: string
   in_stock: boolean
   created_at: string
+  cartId?: string;
 }

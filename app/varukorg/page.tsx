@@ -19,7 +19,7 @@ export default function CartPage() {
       <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Din Varukorg</h1>
       <div className="space-y-6">
         {cartItems.map((product: Product) => (
-          <div key={product.id} className="flex items-center justify-between border p-4 rounded-lg shadow">
+          <div key={product.cartId}  className="flex items-center justify-between border p-4 rounded-lg shadow">
             <div className="flex items-center space-x-4">
               <img
                 src={product.image_url}
