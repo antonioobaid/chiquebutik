@@ -1,15 +1,20 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 import { supabase } from "../../../lib/supabaseClient"
 import { Product } from "@/types/types";
+import { useCart } from "@/components/CartContext";
+
 
 
 export default function ProductDetail() {
   const params = useParams(); // ✅ du måste anropa useParams()
   const id = params?.id;      // ✅ hämta id från URL
   const [product, setProduct] = useState<Product | null>(null);
+
+  const {addToCart} = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     if (!id) return;
@@ -24,7 +29,7 @@ export default function ProductDetail() {
       if (error) {
         console.error("Fel vid hämtning av produkt:", error);
       } else {
-        setProduct(data);
+        setProduct(data as Product);
       }
     }
 
@@ -37,6 +42,12 @@ export default function ProductDetail() {
         Laddar produkt...
       </div>
     );
+  }
+
+  function handleAddToCart() {
+    if (!product) return;
+    addToCart(product)
+    router.push("/varukorg") // Navigera till varukorg-sidan
   }
 
   return (
@@ -57,7 +68,9 @@ export default function ProductDetail() {
           </p>
           <p className="text-sm text-gray-500 mb-2">Kategori: {product.category}</p>
           <p className="text-sm text-gray-500 mb-4">Färg: {product.color} | Storlek: {product.size}</p>
-          <button className="px-6 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition">
+          <button 
+          onClick={handleAddToCart}
+          className="px-6 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition">
             Lägg i varukorg
           </button>
         </div>
@@ -65,3 +78,4 @@ export default function ProductDetail() {
     </div>
   );
 }
+
