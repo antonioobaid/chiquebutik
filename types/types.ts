@@ -13,3 +13,14 @@ export interface Product {
   created_at: string
   cartId?: string;
 }
+
+// types/types.ts
+export interface ContactInfo {
+  id: number;             // bigint i Supabase → number i TS
+  company: string;        // ändrat från company_name → company
+  address: string;
+  phone: string;
+  opening_hours: string;
+  created_at: string;     // timestamptz → string
+}
+
