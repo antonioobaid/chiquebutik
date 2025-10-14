@@ -28,13 +28,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sv">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased  flex flex-col min-h-screen`}>
         <ClerkProvider>
           <CartProvider>
             <Navbar />
-            {children}
+            <main className="flex-grow">{children}</main>
             <Footer />
-
           </CartProvider>
         </ClerkProvider>
       </body>
