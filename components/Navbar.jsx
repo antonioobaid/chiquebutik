@@ -80,15 +80,25 @@ export default function Navbar() {
             </Link>
           ))}
 
-          <SignedOut>
-            <SignInButton>
-              <button className="px-4 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-sm transition">
+           <SignedOut>
+            <SignInButton mode="modal">
+              <button className="px-5 py-2 rounded-lg bg-gradient-to-r from-pink-600 to-blue-600 text-white font-semibold shadow-md hover:opacity-90 transition">
                 Logga in
               </button>
             </SignInButton>
           </SignedOut>
+
           <SignedIn>
-            <UserButton afterSignOutUrl="/" />
+            <div className="flex items-center gap-2">
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-9 h-9 border-2 border-pink-500 rounded-full shadow-md",
+                  },
+                }}
+                afterSignOutUrl="/"
+              />
+            </div>
           </SignedIn>
         </nav>
       </div>

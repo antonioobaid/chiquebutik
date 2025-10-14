@@ -1,5 +1,6 @@
 'use client';
 
+import Link from "next/link";
 import { useCart } from "@/components/CartContext";
 import { Product } from "@/types/types";
 
@@ -13,6 +14,8 @@ export default function CartPage() {
       </div>
     );
   }
+
+  const totalPrice = cartItems.reduce((sum, item) => sum + item.price, 0);
 
   return (
     <div className="flex flex-col min-h-[70vh] bg-gray-50 dark:bg-gray-900 p-6">
@@ -50,6 +53,17 @@ export default function CartPage() {
             </button>
           </div>
         ))}
+      </div>
+      <div className="max-w-3xl mx-auto mt-10 p-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 text-center">
+        <p className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+          Totalt: <span className="text-pink-600">{totalPrice} kr</span>
+        </p>
+        <Link
+          href="/checkout"
+          className="inline-block px-8 py-4 bg-blue-600 text-white font-bold rounded-full shadow-md hover:bg-blue-700 transition"
+        >
+          Gå till betalning
+        </Link>
       </div>
     </div>
   );
