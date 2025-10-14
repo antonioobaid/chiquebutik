@@ -6,14 +6,12 @@ import { supabase } from "../../../lib/supabaseClient"
 import { Product } from "@/types/types";
 import { useCart } from "@/components/CartContext";
 
-
-
 export default function ProductDetail() {
-  const params = useParams(); // ✅ du måste anropa useParams()
-  const id = params?.id;      // ✅ hämta id från URL
+  const params = useParams();
+  const id = params?.id;
   const [product, setProduct] = useState<Product | null>(null);
 
-  const {addToCart} = useCart();
+  const { addToCart } = useCart();
   const router = useRouter();
 
   useEffect(() => {
@@ -24,7 +22,7 @@ export default function ProductDetail() {
         .from("products")
         .select("*")
         .eq("id", id)
-        .single(); // ✅ hämta bara en produkt
+        .single();
 
       if (error) {
         console.error("Fel vid hämtning av produkt:", error);
@@ -46,31 +44,36 @@ export default function ProductDetail() {
 
   function handleAddToCart() {
     if (!product) return;
-    addToCart(product)
-    router.push("/varukorg") // Navigera till varukorg-sidan
+    addToCart(product);
+    router.push("/varukorg");
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <img
-          src={product.image_url}
-          alt={product.title}
-          className="w-full h-auto rounded-lg shadow-lg"
-        />
-        <div>
-          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
-            {product.title}
-          </h1>
-          <p className="text-gray-700 dark:text-gray-300 mb-4">{product.description}</p>
-          <p className="text-xl font-semibold text-pink-600 mb-4">
-            {product.price} kr
-          </p>
-          <p className="text-sm text-gray-500 mb-2">Kategori: {product.category}</p>
-          <p className="text-sm text-gray-500 mb-4">Färg: {product.color} | Storlek: {product.size}</p>
+    <div className="flex justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-96px)]">
+      <div className="max-w-6xl w-full bg-white dark:bg-gray-800 rounded-3xl shadow-xl p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="flex justify-center items-center">
+          <img
+            src={product.image_url}
+            alt={product.title}
+            className="w-full h-auto max-h-[500px] object-cover rounded-2xl shadow-lg"
+          />
+        </div>
+        <div className="flex flex-col justify-between">
+          <div>
+            <h1 className="text-4xl font-extrabold mb-4 text-gray-900 dark:text-white">
+              {product.title}
+            </h1>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">{product.description}</p>
+            <p className="text-2xl font-bold text-blue-500 dark:bg-blue-400 mb-4">
+              {product.price} kr
+            </p>
+            <p className="text-sm text-gray-500 mb-1">Kategori: {product.category}</p>
+            <p className="text-sm text-gray-500 mb-6">Färg: {product.color} | Storlek: {product.size}</p>
+          </div>
           <button 
-          onClick={handleAddToCart}
-          className="px-6 py-3 bg-pink-600 text-white rounded-lg hover:bg-pink-700 transition">
+            onClick={handleAddToCart}
+            className="mt-4 w-full md:w-auto px-6 py-3 bg-blue-500 text-white font-semibold rounded-xl shadow hover:bg-blue-700 transition-all hover:scale-105"
+          >
             Lägg i varukorg
           </button>
         </div>
@@ -78,4 +81,3 @@ export default function ProductDetail() {
     </div>
   );
 }
-

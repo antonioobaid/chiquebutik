@@ -44,7 +44,7 @@ export default function CartPage() {
 
             <button
               onClick={() => removeFromCart(product.cartId!)}
-              className="px-5 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition font-semibold"
+              className="px-5 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-700 transition font-semibold"
             >
               Ta bort
             </button>
