@@ -1,26 +1,33 @@
-
 // fil: types/types.ts
+
 export interface Product {
-  id: string
-  title: string
-  description: string
-  price: number
-  image_url: string
-  category: string
-  size: string
-  color: string
-  in_stock: boolean
-  created_at: string
+  id: number;            // bigint i Supabase → number
+  title: string;
+  description: string;
+  price: number;
+  image_url: string;
+  category: string;
+  size: string;
+  color: string;
+  in_stock: boolean;
+  created_at: string;    // timestamptz → string
   cartId?: string;
 }
 
-// types/types.ts
 export interface ContactInfo {
-  id: number;             // bigint i Supabase → number i TS
-  company: string;        // ändrat från company_name → company
+  id: number;            // bigint i Supabase → number
+  company: string;
   address: string;
   phone: string;
   opening_hours: string;
-  created_at: string;     // timestamptz → string
+  created_at: string;    // timestamptz → string
 }
+
+export interface Favorite {
+  id: number;            // bigint i Supabase → number
+  created_at: string;    // timestamptz → string
+  user_id: string;       // uuid i Supabase → string
+  product_id: number;    // bigint → number (matchar Product.id)
+}
+
 
