@@ -1,6 +1,7 @@
-'use client'
+'use client';
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { useUser } from "@clerk/nextjs"; // 🟢 NYTT: för att veta om användaren är inloggad
 import { CartItem } from "@/types/types";
 
 interface CartContextType {
@@ -17,10 +18,13 @@ interface CartProviderProps {
 }
 
 export function CartProvider({ children }: CartProviderProps) {
+  const { user } = useUser(); // 🟢 NYTT: hämtar användarinformation från Clerk
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
 
-  // ✅ Hämta varukorg från servern när sidan laddas
+  // ✅ Hämta varukorg från servern när användaren är inloggad
   useEffect(() => {
+    if (!user) return; // 🟢 NYTT: hoppa över om användaren inte är inloggad
+
     async function fetchCart() {
       try {
         const res = await fetch("/api/cart");
@@ -32,47 +36,46 @@ export function CartProvider({ children }: CartProviderProps) {
         setCartItems([]);
       }
     }
+
     fetchCart();
-  }, []);
+  }, [user]); // 🟢 NYTT: effekten körs bara när användaren ändras (t.ex. loggar in)
 
   // ✅ Lägg till produkt i servern och uppdatera frontend
   async function addToCart(productId: number) {
-  try {
-    const res = await fetch("/api/cart", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity: 1 }),
-    });
-    const data: { cartItem?: CartItem; error?: string } = await res.json();
-
-    if (res.status === 401) {
-      alert("Du måste logga in för att lägga till produkter i varukorgen.");
-      // skicka användaren till inloggningssidan
-      window.location.href = "/";
-      return;
-    }
-
-    if (res.ok && data.cartItem) {
-      setCartItems(prev => {
-        // Kolla om samma produkt redan finns
-        const existingIndex = prev.findIndex(item => item.id === data.cartItem!.id);
-        if (existingIndex !== -1) {
-          // ersätt item med nya quantity + produktinfo
-          const newCart = [...prev];
-          newCart[existingIndex] = data.cartItem!;
-          return newCart;
-        } else {
-          return [...prev, data.cartItem!];
-        }
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId, quantity: 1 }),
       });
-    } else {
-      alert(data.error || "Kunde inte lägga till produkten");
+      const data: { cartItem?: CartItem; error?: string } = await res.json();
+
+      if (res.status === 401) {
+        alert("Du måste logga in för att lägga till produkter i varukorgen.");
+        window.location.href = "/"; // 🟢 oförändrad: skickar till startsidan
+        return;
+      }
+
+      if (res.ok && data.cartItem) {
+        setCartItems(prev => {
+          const existingIndex = prev.findIndex(item => item.id === data.cartItem!.id);
+          if (existingIndex !== -1) {
+            const newCart = [...prev];
+            newCart[existingIndex] = data.cartItem!;
+            return newCart;
+          } else {
+            return [...prev, data.cartItem!];
+          }
+        });
+      } else {
+        alert(data.error || "Kunde inte lägga till produkten");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Ett fel uppstod när produkten skulle läggas till");
     }
-  } catch (error) {
-    console.error(error);
-    alert("Ett fel uppstod när produkten skulle läggas till");
   }
-}
+
   // ✅ Ta bort produkt från servern och uppdatera frontend
   async function removeFromCart(cartId: number) {
     try {
