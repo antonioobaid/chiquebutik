@@ -42,11 +42,23 @@ export default function ProductDetail() {
     );
   }
 
-  function handleAddToCart() {
-    if (!product) return;
-    addToCart(product.id);
-    router.push("/varukorg");
+  async function handleAddToCart() {
+  if (!product) return;
+
+  try {
+    await addToCart(product.id); // OBS! Lägg till await
+    router.push("/varukorg");    // Om inloggad, gå direkt till varukorg
+  } catch (error: any) {
+    if (error?.status === 401) {
+      alert("Du måste logga in för att lägga till produkter i varukorgen.");
+      router.push("/"); // Om inte inloggad, gå till hem
+    } else {
+      console.error(error);
+      alert("Ett fel uppstod när produkten skulle läggas till.");
+    }
   }
+}
+
 
   return (
     <div className="flex justify-center py-16 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-900 min-h-[calc(100vh-96px)]">
