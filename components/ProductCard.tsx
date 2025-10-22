@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Product } from '@/types/types';
@@ -12,7 +14,7 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
   const { user } = useUser();
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
 
-  // ✅ Uppdatera state om prop ändras
+  // Uppdatera state om prop ändras
   useEffect(() => {
     setIsFavorite(initialFavorite);
   }, [initialFavorite]);
@@ -32,12 +34,10 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ productId: product.id }),
       });
-
       const result = await res.json();
 
       if (res.ok) {
-        if (result.removed) setIsFavorite(false);
-        else setIsFavorite(true);
+        setIsFavorite(!result.removed);
       } else {
         console.error('Fel vid sparning:', result.error);
       }
@@ -63,9 +63,7 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
 
       <button
         onClick={handleFavorite}
-        className={`absolute top-3 right-3 text-2xl ${
-          isFavorite ? 'text-red-500' : 'text-gray-400'
-        } hover:scale-110 transition`}
+        className={`absolute top-3 right-3 text-2xl ${isFavorite ? 'text-red-500' : 'text-gray-400'} hover:scale-110 transition`}
       >
         ♥
       </button>

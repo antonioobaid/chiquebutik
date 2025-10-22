@@ -1,7 +1,7 @@
 // fil: types/types.ts
 
 export interface Product {
-  id: number;            // bigint i Supabase → number
+  id: number;
   title: string;
   description: string;
   price: number;
@@ -10,9 +10,18 @@ export interface Product {
   size: string;
   color: string;
   in_stock: boolean;
-  created_at: string;    // timestamptz → string
-  cartId?: string;
+  created_at: string;
 }
+
+export interface CartItem {
+  id: number;
+  product_id: number;
+  quantity: number;
+  created_at: string;  // ISO timestamp
+  user_id: string;
+  products?: Product;  
+}
+
 
 export interface ContactInfo {
   id: number;            // bigint i Supabase → number
@@ -23,11 +32,11 @@ export interface ContactInfo {
   created_at: string;    // timestamptz → string
 }
 
+
 export interface Favorite {
   id: number;            // bigint i Supabase → number
   created_at: string;    // timestamptz → string
   user_id: string;       // uuid i Supabase → string
   product_id: number;    // bigint → number (matchar Product.id)
 }
-
 

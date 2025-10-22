@@ -44,7 +44,7 @@ export default function ProductDetail() {
 
   function handleAddToCart() {
     if (!product) return;
-    addToCart(product);
+    addToCart(product.id);
     router.push("/varukorg");
   }
 
