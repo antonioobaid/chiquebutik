@@ -32,7 +32,7 @@ export default function ContactPage() {
   }
 
   return (
-    <div className="flex justify-center items-center min-h-[80vh] bg-gradient-to-b from-gray-50 to-gray-200 dark:from-gray-900 dark:to-gray-800 p-4">
+    <div className="flex justify-center items-center min-h-[80vh] bg-gradient-to-b from-white via-blue-50 to-blue-100  dark:from-gray-900 dark:to-gray-800 p-4">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}

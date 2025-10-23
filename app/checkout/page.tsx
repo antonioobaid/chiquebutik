@@ -9,7 +9,10 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState("card");
 
-  const total = cartItems.reduce((sum, item) => sum + (item.price || 0), 0);
+  const total = cartItems.reduce((sum, item) => {
+    const price = item.products?.price ?? 0;
+    return sum + price * item.quantity;
+  }, 0);
 
   function handlePayment() {
     if (cartItems.length === 0) return;
@@ -27,7 +30,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4">
+    <div className="flex flex-col items-center min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
       <div className="w-full max-w-3xl bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8">
         <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
           Kassa
@@ -35,20 +38,22 @@ export default function CheckoutPage() {
 
         {/* Produkter */}
         <div className="space-y-4 mb-8">
-          {cartItems.map((item) => (
+          {cartItems.map((item, index) => (
             <div
-              key={item.cartId}
+              key={item.id ?? `${item.product_id}-${index}`}
               className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3"
             >
               <div>
-                <p className="font-semibold text-gray-900 dark:text-white">{item.title}</p>
+                <p className="font-semibold text-gray-900 dark:text-white">
+                  {item.products?.title ?? "Okänd produkt"}
+                </p>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">
-                  {item.price} kr
+                  {item.products?.price ?? 0} kr × {item.quantity}
                 </p>
               </div>
               <img
-                src={item.image_url}
-                alt={item.title}
+                src={item.products?.image_url ?? "/placeholder.png"}
+                alt={item.products?.title ?? "Produktbild"}
                 className="w-16 h-16 rounded-lg object-cover shadow"
               />
             </div>
