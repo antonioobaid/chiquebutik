@@ -14,7 +14,6 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
   const { user } = useUser();
   const [isFavorite, setIsFavorite] = useState(initialFavorite);
 
-  // Uppdatera state om prop ändras
   useEffect(() => {
     setIsFavorite(initialFavorite);
   }, [initialFavorite]);
@@ -49,24 +48,41 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
   return (
     <Link
       href={`/produkter/${product.id}`}
-      className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 hover:shadow-2xl transition relative"
+      className="group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden relative focus:outline-none focus:ring-0"
     >
-      <img
-        src={product.image_url}
-        alt={product.title}
-        className="w-full h-64 object-cover rounded-lg"
-      />
-      <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
-        {product.title}
-      </h3>
-      <p className="text-gray-700 dark:text-gray-300">{product.price} kr</p>
+      {/* Produktbild */}
+      <div className="relative overflow-hidden">
+        <img
+          src={product.image_url}
+          alt={product.title}
+          className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+        <button
+          onClick={handleFavorite}
+          className={`absolute top-3 right-3 text-2xl drop-shadow-sm transition-transform duration-300 ${
+            isFavorite ? 'text-red-500 scale-110' : 'text-gray-300 group-hover:text-gray-400'
+          } hover:scale-125`}
+        >
+          ♥
+        </button>
+      </div>
 
-      <button
-        onClick={handleFavorite}
-        className={`absolute top-3 right-3 text-2xl ${isFavorite ? 'text-red-500' : 'text-gray-400'} hover:scale-110 transition`}
-      >
-        ♥
-      </button>
+      {/* Produktinformation */}
+      <div className="p-4 flex flex-col gap-2">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+          {product.title}
+        </h3>
+        <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+          {product.description?.length ? product.description : 'Elegant och stilren klänning.'}
+        </p>
+
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            {product.price} kr
+          </span>
+          <span className="text-sm text-gray-500 dark:text-gray-400">Se mer →</span>
+        </div>
+      </div>
     </Link>
   );
 }

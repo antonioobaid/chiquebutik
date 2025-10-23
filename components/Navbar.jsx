@@ -11,10 +11,6 @@ export default function Navbar() {
 
         {/* 🔹 Left side (Logo + Search button) */}
         <div className="flex items-center gap-4">
-          {/* 🔹 Search button — now first */}
-          <button className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-            <Search size={22} />
-          </button>
 
           {/* 🔹 Logo */}
           <Link
@@ -28,9 +24,9 @@ export default function Navbar() {
         {/* 🔹 Desktop navigation */}
         <nav className="hidden md:flex items-center gap-4">
             {/* 🔹 Search first */}
-            <button className="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
-              <Search size={20} /> Sök
-            </button>
+             <button className="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+              <Search size={22} /> Sök
+              </button>
 
             <Link href="/produkter" className="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
               <Store size={20} /> Produkter
