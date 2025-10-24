@@ -31,7 +31,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12 px-4">
-      <div className="w-full max-w-3xl bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8">
+      <div className="w-full max-w-3xl bg-gradient-to-r from-blue-100 via-pink-50 to-white dark:from-gray-700 dark:to-gray-800 shadow-lg rounded-2xl p-8">
         <h1 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
           Kassa
         </h1>
@@ -54,7 +54,7 @@ export default function CheckoutPage() {
               <img
                 src={item.products?.image_url ?? "/placeholder.png"}
                 alt={item.products?.title ?? "Produktbild"}
-                className="w-16 h-16 rounded-lg object-cover shadow"
+                className="w-24 h-24   rounded-lg object-cover shadow"
               />
             </div>
           ))}
@@ -71,23 +71,24 @@ export default function CheckoutPage() {
           <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
             Välj betalningsmetod
           </h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-              { id: "card", name: "💳 Kort" },
-              { id: "swish", name: "📱 Swish" },
-              { id: "paypal", name: "💰 PayPal" },
-              { id: "klarna", name: "🛍️ Klarna" },
+               { id: "card", name: "Kort", img: "/payment/Visa.png" },
+                { id: "swish", name: "Swish", img: "/payment/swish1.png" },
+                { id: "paypal", name: "PayPal", img: "/payment/Paypal.png" },
+                { id: "klarna", name: "Klarna", img: "/payment/klarna.jpeg" },
             ].map((method) => (
               <button
                 key={method.id}
                 onClick={() => setPaymentMethod(method.id)}
-                className={`p-4 rounded-lg font-semibold border transition ${
-                  paymentMethod === method.id
+                className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl font-semibold border transition
+                  ${paymentMethod === method.id
                     ? "bg-gradient-to-r from-pink-600 to-blue-600 text-white border-transparent"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
-                }`}
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"}
+                `}
               >
-                {method.name}
+                <img src={method.img} alt={method.name} className="w-10 h-10 object-contain" />
+                <span>{method.name}</span>
               </button>
             ))}
           </div>
