@@ -1,6 +1,7 @@
 'use client';
 
 import { useCart } from "@/components/CartContext";
+import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -8,17 +9,51 @@ export default function CheckoutPage() {
   const { cartItems, clearCart } = useCart();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState("card");
+  const [loading, setLoading] = useState(false);
+  
+  const { user } = useUser(); // ✅ Hämta inloggad användare från Clerk
+  const userId = user?.id ;
+  const userEmail = user?.primaryEmailAddress?.emailAddress || "guest@example.com";
 
   const total = cartItems.reduce((sum, item) => {
     const price = item.products?.price ?? 0;
     return sum + price * item.quantity;
   }, 0);
 
-  function handlePayment() {
+  async function handlePayment() {
+    
+    if (!userId) {
+      alert("Du måste vara inloggad för att betala.");
+      return;
+    }
+
     if (cartItems.length === 0) return;
-    alert(`Betalning med ${paymentMethod} lyckades! Tack för ditt köp 💖`);
-    clearCart();
-    router.push("/");
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cartItems,
+           userId,
+          email: userEmail, // Byt till Clerk user ID
+        }),
+      });
+
+      const data = await res.json();
+
+      if (data.url) {
+        window.location.href = data.url; // Redirect till Stripe Checkout
+      } else {
+        alert("Något gick fel vid betalning.");
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Betalning misslyckades, försök igen.");
+      setLoading(false);
+    }
   }
 
   if (cartItems.length === 0) {
@@ -54,7 +89,7 @@ export default function CheckoutPage() {
               <img
                 src={item.products?.image_url ?? "/placeholder.png"}
                 alt={item.products?.title ?? "Produktbild"}
-                className="w-24 h-24   rounded-lg object-cover shadow"
+                className="w-24 h-24 rounded-lg object-cover shadow"
               />
             </div>
           ))}
@@ -73,10 +108,10 @@ export default function CheckoutPage() {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {[
-               { id: "card", name: "Kort", img: "/payment/Visa.png" },
-                { id: "swish", name: "Swish", img: "/payment/swish1.png" },
-                { id: "paypal", name: "PayPal", img: "/payment/Paypal.png" },
-                { id: "klarna", name: "Klarna", img: "/payment/klarna.jpeg" },
+              { id: "card", name: "Kort", img: "/payment/Visa.png" },
+              { id: "swish", name: "Swish", img: "/payment/swish1.png" },
+              { id: "paypal", name: "PayPal", img: "/payment/Paypal.png" },
+              { id: "klarna", name: "Klarna", img: "/payment/klarna.jpeg" },
             ].map((method) => (
               <button
                 key={method.id}
@@ -84,8 +119,8 @@ export default function CheckoutPage() {
                 className={`flex flex-col items-center justify-center gap-2 p-4 rounded-xl font-semibold border transition
                   ${paymentMethod === method.id
                     ? "bg-gradient-to-r from-pink-600 to-blue-600 text-white border-transparent"
-                    : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"}
-                `}
+                    : "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 border-gray-300 dark:border-gray-600 hover:bg-gray-200 dark:hover:bg-gray-600"
+                  }`}
               >
                 <img src={method.img} alt={method.name} className="w-10 h-10 object-contain" />
                 <span>{method.name}</span>
@@ -97,9 +132,10 @@ export default function CheckoutPage() {
         {/* Betala knapp */}
         <button
           onClick={handlePayment}
-          className="w-full py-3 bg-gradient-to-r from-pink-600 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:opacity-90 transition"
+          disabled={loading}
+          className="w-full py-3 bg-gradient-to-r from-pink-600 to-blue-600 text-white font-semibold rounded-lg shadow-lg hover:opacity-90 transition disabled:opacity-50"
         >
-          Betala nu
+          {loading ? "Skapar betalning..." : "Betala nu"}
         </button>
 
         <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-4">

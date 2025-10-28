@@ -11,7 +11,10 @@ export interface Product {
   color: string;
   in_stock: boolean;
   created_at: string;
+  stripe_price_id?: string;   
+  stripe_product_id?: string;  
 }
+
 
 export interface CartItem {
   id: number;
@@ -40,3 +43,23 @@ export interface Favorite {
   product_id: number;    // bigint → number (matchar Product.id)
 }
 
+
+
+
+// fil: types/types.ts
+export interface Order {
+  id: number;
+  user_id: string | null;
+  stripe_session: string;
+  total_amount: number;
+  status: string;
+  created_at: string;
+}
+
+export interface OrderItem {
+  id: number;
+  order_id: number;
+  product_id: number;
+  quantity: number;
+  price: number;
+}

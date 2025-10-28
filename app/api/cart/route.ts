@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ cartItem: data[0] }, { status: 200 });
     } else {
       // Lägg till ny produkt
-      const { data, error } = await supabaseServer
+      const { data, error } = await supabaseServer  
         .from("cart")
         .insert([{ user_id: userId, product_id: productId, quantity }])
         .select("*, products(*)");
