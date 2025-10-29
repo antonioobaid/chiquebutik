@@ -93,10 +93,24 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }
 
-  // ✅ Töm varukorgen client-side
-  function clearCart() {
-    setCartItems([]);
+
+   // Töm varukorgen både i databasen och client-side
+async function clearCart() {
+  try {
+    const res = await fetch("/api/cart/clear", { method: "DELETE" });
+    const data = await res.json();
+
+    if (res.ok && data.success) {
+      setCartItems([]); // töm client state
+    } else {
+      console.error("Kunde inte rensa varukorgen:", data.error);
+    }
+  } catch (error) {
+    console.error("Fel vid rensning av varukorg:", error);
   }
+}
+
+
 
   return (
     <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, clearCart }}>

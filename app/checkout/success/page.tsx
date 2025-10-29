@@ -1,16 +1,17 @@
-'use client';
+"use client";
 
+import { useCart } from "@/components/CartContext";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface LineItem {
-  description: string;
   quantity: number;
   price: {
     unit_amount: number;
     currency: string;
     product: {
       name: string;
+      images?: string[];
     };
   };
 }
@@ -36,9 +37,13 @@ export default function SuccessPage() {
   const params = useSearchParams();
   const router = useRouter();
   const sessionId = params.get("session_id");
+  const { clearCart } = useCart();
 
   const [loading, setLoading] = useState(true);
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
+
+  // 🔒 Förhindrar att clearCart körs mer än en gång
+  const hasCleared = useRef(false);
 
   useEffect(() => {
     if (!sessionId) return;
@@ -50,6 +55,13 @@ export default function SuccessPage() {
 
         if (data.session) {
           setPaymentInfo(data.session);
+
+          // 🧹 Töm varukorgen (bara en gång)
+          if (!hasCleared.current) {
+            hasCleared.current = true;
+            await fetch("/api/cart/clear", { method: "DELETE" });
+            clearCart();
+          }
         }
       } catch (err) {
         console.error("Error fetching session:", err);
@@ -59,7 +71,7 @@ export default function SuccessPage() {
     }
 
     fetchSession();
-  }, [sessionId]);
+  }, [sessionId, clearCart]);
 
   if (loading) {
     return (
@@ -71,11 +83,13 @@ export default function SuccessPage() {
 
   if (!paymentInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <p className="text-lg text-red-600">Kunde inte hämta betalningsinformation.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+        <p className="text-lg text-red-600 mb-4">
+          Kunde inte hämta betalningsinformation.
+        </p>
         <button
           onClick={() => router.push("/")}
-          className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition"
+          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition"
         >
           Tillbaka till startsidan
         </button>
@@ -83,22 +97,33 @@ export default function SuccessPage() {
     );
   }
 
-  // ⚡ Säkerställ att vi alltid har namn och e-post
-  const customerName =
-    paymentInfo.customer?.name || "Gäst";
-  const customerEmail =
-    paymentInfo.customer?.email || paymentInfo.customer_email || "Ej angivet";
+  // ✅ Hanterar både customer och customer_details från Stripe
+const customerName =
+  paymentInfo.customer?.name ||
+  (paymentInfo as any).customer_details?.name ||
+  "Gäst";
+
+const customerEmail =
+  paymentInfo.customer?.email ||
+  (paymentInfo as any).customer_details?.email ||
+  paymentInfo.customer_email ||
+  "Ej angivet";
 
   const amount = (paymentInfo.amount_total / 100).toFixed(2);
   const currency = paymentInfo.currency.toUpperCase();
-  const paymentMethods = paymentInfo.payment_intent?.payment_method_types?.join(", ") || "-";
+  const paymentMethods =
+    paymentInfo.payment_intent?.payment_method_types?.join(", ") || "-";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-6">
       <div className="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center">
-        <h1 className="text-3xl font-bold text-green-600 mb-4">🎉 Betalningen lyckades!</h1>
+        <h1 className="text-3xl font-bold text-green-600 mb-4">
+          🎉 Betalningen lyckades!
+        </h1>
         <p className="text-gray-700 mb-2">Tack för ditt köp, {customerName}!</p>
-        <p className="text-gray-700 mb-6">Din betalning har genomförts korrekt.</p>
+        <p className="text-gray-700 mb-6">
+          Din betalning har genomförts korrekt.
+        </p>
 
         <div className="bg-gray-100 p-4 rounded-lg text-sm text-gray-800 mb-6">
           <p><strong>E-post:</strong> {customerEmail}</p>
@@ -106,13 +131,31 @@ export default function SuccessPage() {
           <p><strong>Betalningsmetod:</strong> {paymentMethods}</p>
         </div>
 
-        {paymentInfo.line_items?.data.length ? (
+        {paymentInfo.line_items?.data?.length ? (
           <div className="mb-6 text-left">
-            <h2 className="font-semibold mb-2">Produkter:</h2>
-            <ul className="space-y-2">
+            <h2 className="font-semibold mb-3 text-lg">🛍 Dina produkter:</h2>
+            <ul className="space-y-3">
               {paymentInfo.line_items.data.map((item, index) => (
-                <li key={index} className="border-b border-gray-300 pb-1">
-                  {item.price.product.name} × {item.quantity} — {(item.price.unit_amount / 100).toFixed(2)} {item.price.currency.toUpperCase()}
+                <li
+                  key={index}
+                  className="flex items-center gap-3 border-b border-gray-200 pb-2"
+                >
+                  {item.price.product.images?.[0] && (
+                    <img
+                      src={item.price.product.images[0]}
+                      alt={item.price.product.name}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                  )}
+                  <div>
+                    <p className="font-medium">
+                      {item.price.product.name} × {item.quantity}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {(item.price.unit_amount / 100).toFixed(2)}{" "}
+                      {item.price.currency.toUpperCase()}
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
@@ -121,7 +164,7 @@ export default function SuccessPage() {
 
         <button
           onClick={() => router.push("/")}
-          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition"
+          className="mt-4 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-md transition"
         >
           Tillbaka till startsidan
         </button>

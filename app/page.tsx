@@ -60,11 +60,11 @@ export default function Home() {
       </section>
 
       {/* 🔹 Populära Produkter */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 lg:px-10 max-w-7xl mx-auto">
+      <section className="py-16 sm:py-20 px-4 sm:px-8 lg:px-10 max-w-7xl mx-auto ">
         <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
           Populära Klänningar 👗
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 ">
           {products.length > 0 ? (
             products.map((product) => (
               <div

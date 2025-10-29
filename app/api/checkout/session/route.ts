@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-09-30.clover",
+  apiVersion: "2025-09-30.clover", // behåll den version du använder
 });
 
 export async function GET(req: NextRequest) {
@@ -17,14 +17,19 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    // Hämtar session från Stripe och expanderar customer, line_items och payment_intent
+    // 🔍 Hämtar session från Stripe och expanderar produktinformation
     const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["line_items", "payment_intent", "customer"],
+      expand: [
+        "line_items.data.price.product", // 👈 här hämtar vi alla produktdetaljer
+        "payment_intent",
+        "customer",
+      ],
     });
 
+    // ✅ Skicka hela sessionen som JSON till frontend (SuccessPage)
     return NextResponse.json({ session });
   } catch (err: any) {
-    console.error("Error fetching Stripe session:", err);
+    console.error("❌ Error fetching Stripe session:", err.message);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
