@@ -1,5 +1,5 @@
 'use client';
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Heart, ShoppingCart, Store, Search, User, Phone, X } from "lucide-react";
@@ -8,6 +8,8 @@ import { Product } from "@/types/types";
 
 export default function Navbar() {
   const router = useRouter();
+  const pathname = usePathname();
+
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
@@ -39,11 +41,19 @@ export default function Navbar() {
     const handleClickOutside = (e: MouseEvent) => {
       if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
         setSearchOpen(false);
+        setQuery(""); // rensa sökfältet när overlay stängs
+        setResults([]);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // 🔹 Rensa sökfält och resultat vid navigering
+  useEffect(() => {
+    setQuery("");
+    setResults([]);
+  }, [pathname]);
 
   return (
     <header className="bg-gradient-to-r from-white via-blue-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 shadow-md sticky top-0 z-50">
@@ -73,7 +83,11 @@ export default function Navbar() {
                 className="w-full bg-transparent outline-none border-b border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white py-1"
               />
               <button
-                onClick={() => setSearchOpen(false)}
+                onClick={() => {
+                  setSearchOpen(false);
+                  setQuery(""); // rensa när man klickar X
+                  setResults([]);
+                }}
                 className="text-gray-500 hover:text-red-500 transition"
               >
                 <X size={22} />
@@ -87,6 +101,8 @@ export default function Navbar() {
                     key={product.id}
                     onClick={() => {
                       setSearchOpen(false);
+                      setQuery(""); // rensa vid navigering
+                      setResults([]);
                       router.push(`/produkter/${product.id}`);
                     }}
                     className="flex items-center gap-4 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 cursor-pointer transition"
