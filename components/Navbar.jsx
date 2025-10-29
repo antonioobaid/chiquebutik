@@ -1,10 +1,12 @@
 'use client';
-
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Heart, ShoppingCart, Store, Search, User, Phone } from "lucide-react";
 
 export default function Navbar() {
+   const router = useRouter();
+
   return (
     <header className="bg-gradient-to-r from-white via-blue-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 shadow-md sticky top-0 z-50">
       <div className="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
@@ -22,7 +24,9 @@ export default function Navbar() {
         {/* 🔹 Desktop navigation */}
         <nav className="hidden md:flex items-center gap-5">
           {/* 🔹 Search first */}
-          <button className="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+          <button 
+          onClick={() => router.push("/sok")}
+          className="flex items-center gap-2 text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
             <Search size={22} /> Sök
           </button>
 
@@ -64,7 +68,9 @@ export default function Navbar() {
 
         {/* 🔹 Mobile navigation (only icons) */}
         <div className="flex md:hidden items-center gap-4">
-          <button className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
+          <button
+           onClick={() => router.push("/sok")}
+           className="text-gray-700 dark:text-gray-200 hover:text-blue-600 transition">
             <Search size={24} />
           </button>
 
