@@ -64,8 +64,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-
-// 🔹 GET - Hämta alla favorit-produkter för användaren
+// 🔹 GET - Hämta alla favorit-produkter för användaren MED STORLEKAR
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -81,10 +80,13 @@ export async function GET() {
 
   const productIds = favorites.map(f => f.product_id);
 
-  // Hämta produkterna baserat på favorit-ids
+  // ✅ UPPDATERAD: Hämta produkterna MED deras storlekar
   const { data: products, error: prodError } = await supabaseServer
     .from("products")
-    .select("*")
+    .select(`
+      *,
+      product_sizes(*)
+    `)
     .in("id", productIds);
 
   if (prodError) return NextResponse.json({ error: prodError.message }, { status: 500 });

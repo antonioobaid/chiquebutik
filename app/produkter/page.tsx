@@ -1,3 +1,4 @@
+// app/produkter/page.tsx
 'use client'
 
 import { useEffect, useState } from 'react'
@@ -13,10 +14,19 @@ export default function ProductsPage() {
 
   useEffect(() => {
     async function fetchProducts() {
-      const { data, error } = await supabase.from('products').select('*')
+      const { data, error } = await supabase
+        .from('products')
+        .select(`*, product_sizes(*)`)
 
       if (error) console.error(error)
-      else setProducts(data as Product[])
+      else {
+        // ✅ TRANSFORMERA: Mappa product_sizes till sizes
+        const transformedProducts = data.map((product: any) => ({
+          ...product,
+          sizes: product.product_sizes || []
+        }));
+        setProducts(transformedProducts as Product[])
+      }
     }
 
     async function fetchFavorites() {
@@ -56,15 +66,11 @@ export default function ProductsPage() {
         {products.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
             {products.map((product) => (
-              <div
+              <ProductCard
                 key={product.id}
-                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl transition-transform hover:-translate-y-2 p-4"
-              >
-                <ProductCard
-                  product={product}
-                  isFavorite={favorites.includes(Number(product.id))}
-                />
-              </div>
+                product={product}
+                isFavorite={favorites.includes(Number(product.id))}
+              />
             ))}
           </div>
         ) : (

@@ -1,7 +1,7 @@
+// app/api/cart/route.ts
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServerClient";
-
 
 // GET - Hämta användarens varukorg
 export async function GET() {
@@ -11,9 +11,8 @@ export async function GET() {
 
     const { data, error } = await supabaseServer
       .from("cart")
-      .select("id, product_id, quantity, created_at, products(*)")
+      .select("id, product_id, quantity, size, created_at, products(*)")
       .eq("user_id", userId);
-
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
@@ -21,7 +20,6 @@ export async function GET() {
   } catch (err: any) {
     console.error("GET /cart error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-    
   }
 }
 
@@ -34,43 +32,92 @@ export async function POST(req: Request) {
     const body = await req.json();
     const productId = Number(body.productId);
     const quantity = Number(body.quantity || 1);
+    const size = body.size;
 
     if (!productId) return NextResponse.json({ error: "productId is required" }, { status: 400 });
 
-    // Kontrollera om produkten redan finns
-    const { data: existing, error: existingError } = await supabaseServer
+    // ✅ NYTT: Kontrollera om produkten finns och dess lagerstatus
+    const { data: product, error: productError } = await supabaseServer
+      .from("products")
+      .select(`
+        *,
+        product_sizes(*)
+      `)
+      .eq("id", productId)
+      .single();
+
+    if (productError || !product) {
+      return NextResponse.json({ error: "Produkten hittades inte" }, { status: 404 });
+    }
+
+    // ✅ NYTT: Kontrollera om produkten är HELT slut
+    const allSizes = product.product_sizes || [];
+    const availableSizes = allSizes.filter((sizeItem: any) => sizeItem.in_stock);
+    const isProductSoldOut = allSizes.length > 0 && availableSizes.length === 0;
+
+    if (isProductSoldOut) {
+      return NextResponse.json({ error: "Denna produkt är tyvärr slut i lager" }, { status: 400 });
+    }
+
+    // ✅ NYTT: Om produkten har storlekar, kontrollera att vald storlek finns i lager
+    if (allSizes.length > 0 && size) {
+      const selectedSize = allSizes.find((sizeItem: any) => sizeItem.size === size);
+      if (!selectedSize || !selectedSize.in_stock) {
+        return NextResponse.json({ error: `Storlek ${size} är tyvärr slut i lager` }, { status: 400 });
+      }
+    }
+
+    // ✅ FIX: Hantera null/undefined size korrekt
+    let existingQuery = supabaseServer
       .from("cart")
       .select("*")
       .eq("user_id", userId)
-      .eq("product_id", productId)
-      .single();
+      .eq("product_id", productId);
+
+    // Om size är null/undefined, kolla efter rader där size är null
+    if (size === null || size === undefined) {
+      existingQuery = existingQuery.is("size", null);
+    } else {
+      existingQuery = existingQuery.eq("size", size);
+    }
+
+    const { data: existing, error: existingError } = await existingQuery.single();
 
     if (existingError && existingError.code !== "PGRST116") {
       return NextResponse.json({ error: existingError.message }, { status: 500 });
     }
 
+    let result;
+
     if (existing) {
-      // Öka quantity
+      // ✅ FIX: Öka quantity och använd .single()
       const { data, error } = await supabaseServer
         .from("cart")
         .update({ quantity: existing.quantity + quantity })
         .eq("id", existing.id)
-        .select("*, products(*)");
+        .select("*, products(*)")
+        .single();
 
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-      return NextResponse.json({ cartItem: data[0] }, { status: 200 });
+      result = data;
     } else {
-      // Lägg till ny produkt
+      // ✅ FIX: Lägg till ny produkt och använd .single()
       const { data, error } = await supabaseServer  
         .from("cart")
-        .insert([{ user_id: userId, product_id: productId, quantity }])
-        .select("*, products(*)");
+        .insert([{ 
+          user_id: userId, 
+          product_id: productId, 
+          quantity,
+          size
+        }])
+        .select("*, products(*)")
+        .single();
 
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-
-      return NextResponse.json({ cartItem: data[0] }, { status: 200 });
+      result = data;
     }
+
+    return NextResponse.json({ cartItem: result }, { status: 200 });
   } catch (err: any) {
     console.error("POST /cart error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

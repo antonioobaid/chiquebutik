@@ -14,9 +14,10 @@ export default function Home() {
 
   useEffect(() => {
     async function fetchProducts() {
+      // ✅ UPPDATERAD: Hämta produkter MED storlekar
       const { data, error } = await supabase
         .from("products")
-        .select("*")
+        .select(`*, product_sizes(*)`)
         .limit(8);
 
       if (error) console.error(error);
@@ -60,22 +61,18 @@ export default function Home() {
       </section>
 
       {/* 🔹 Populära Produkter */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 lg:px-10 max-w-7xl mx-auto ">
+      <section className="py-16 sm:py-20 px-4 sm:px-8 lg:px-10 max-w-7xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-12 text-center">
           Populära Klänningar 👗
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8 ">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
           {products.length > 0 ? (
             products.map((product) => (
-              <div
+              <ProductCard
                 key={product.id}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg hover:shadow-2xl transition duration-300 p-4"
-              >
-                <ProductCard
-                  product={product}
-                  isFavorite={favorites.includes(Number(product.id))}
-                />
-              </div>
+                product={product}
+                isFavorite={favorites.includes(Number(product.id))}
+              />
             ))
           ) : (
             <p className="text-center col-span-full text-gray-700 dark:text-gray-300">
@@ -86,7 +83,7 @@ export default function Home() {
       </section>
 
       {/* 🔹 Kontakt/Info Sektion */}
-      <section className="py-16 bg-gradient-to-r from-whtie via-pink-50 to-blue-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 text-center rounded-t-3xl shadow-inner">
+      <section className="py-16 bg-gradient-to-r from-white via-pink-50 to-blue-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-900 text-center rounded-t-3xl shadow-inner">
         <h3 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900 dark:text-white">
           Behöver du hjälp att hitta rätt klänning?
         </h3>

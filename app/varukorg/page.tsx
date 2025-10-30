@@ -54,7 +54,9 @@ export default function CartPage() {
                     {item.products?.price ?? 0} kr × {item.quantity}
                   </p>
                   <p className="text-gray-500 dark:text-gray-400 text-sm">
-                    Färg: {item.products?.color} | Storlek: {item.products?.size}
+                    Färg: {item.products?.color} 
+                    {/* ✅ ÄNDRAD: Använd item.size istället för item.products?.size */}
+                    {item.size && ` | Storlek: ${item.size}`}
                   </p>
                 </div>
               </div>

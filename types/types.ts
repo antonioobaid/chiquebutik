@@ -1,5 +1,13 @@
 // fil: types/types.ts
 
+export interface ProductSize {
+  id: number;
+  product_id: number;
+  size: string;
+  in_stock: boolean;
+  created_at: string;
+}
+
 export interface Product {
   id: number;
   title: string;
@@ -7,47 +15,44 @@ export interface Product {
   price: number;
   image_url: string;
   category: string;
-  size: string;
   color: string;
-  in_stock: boolean;
   created_at: string;
   stripe_price_id?: string;   
-  stripe_product_id?: string;  
+  stripe_product_id?: string; 
+  sizes?: ProductSize[];  // ✅ Använd sizes array istället för size
+  product_sizes?: ProductSize[]; // För API response 👈 Lägg till detta
 }
 
+// Resten av dina interfaces förblir oförändrade
 
+
+// types/types.ts
 export interface CartItem {
   id: number;
   product_id: number;
   quantity: number;
-  created_at: string;  // ISO timestamp
+  size?: string; // ✅ Lägg till denna rad
+  created_at: string;
   user_id: string;
   products?: Product;  
 }
-
-
 export interface ContactInfo {
-  id: number;            // bigint i Supabase → number
+  id: number;
   company: string;
   address: string;
   phone: string;
   opening_hours: string;
   created_at: string;  
-   email?: string; 
+  email?: string; 
 }
-
 
 export interface Favorite {
-  id: number;            // bigint i Supabase → number
-  created_at: string;    // timestamptz → string
-  user_id: string;       // uuid i Supabase → string
-  product_id: number;    // bigint → number (matchar Product.id)
+  id: number;
+  created_at: string;
+  user_id: string;
+  product_id: number;
 }
 
-
-
-
-// fil: types/types.ts
 export interface Order {
   id: number;
   user_id: string | null;
@@ -64,7 +69,3 @@ export interface OrderItem {
   quantity: number;
   price: number;
 }
-
-
-
-
