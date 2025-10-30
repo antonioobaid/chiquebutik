@@ -32,7 +32,8 @@ export interface ContactInfo {
   address: string;
   phone: string;
   opening_hours: string;
-  created_at: string;    // timestamptz → string
+  created_at: string;  
+   email?: string; 
 }
 
 
@@ -63,3 +64,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
 }
+
+
+
+
