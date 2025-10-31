@@ -1,3 +1,4 @@
+// components/ProductCard.tsx - Uppdaterad version
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -17,6 +18,18 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
   useEffect(() => {
     setIsFavorite(initialFavorite);
   }, [initialFavorite]);
+
+  // ✅ Hämta första bilden från product_images array, fallback till image_url
+  const getProductImage = () => {
+    if (product.images && product.images.length > 0) {
+      // Sortera bilder efter image_order och ta första
+      const sortedImages = [...product.images].sort((a, b) => a.image_order - b.image_order);
+      return sortedImages[0].image_url;
+    }
+    return product.image_url; // Fallback till gamla image_url
+  };
+
+  const productImage = getProductImage();
 
   async function handleFavorite(e: React.MouseEvent) {
     e.preventDefault();
@@ -76,7 +89,7 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
         <div className="cursor-not-allowed">
           <div className="relative overflow-hidden">
             <img
-              src={product.image_url}
+              src={productImage} // ✅ Använd den nya bildfunktionen
               alt={product.title}
               className="w-full h-64 object-cover grayscale"
             />
@@ -121,7 +134,7 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
         >
           <div className="relative overflow-hidden">
             <img
-              src={product.image_url}
+              src={productImage} // ✅ Använd den nya bildfunktionen
               alt={product.title}
               className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
             />

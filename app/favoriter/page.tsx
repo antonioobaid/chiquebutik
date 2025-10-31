@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Product, ProductSize } from "@/types/types";
+import { Product, ProductSize, ProductImage } from "@/types/types";
 import { useCart } from "@/components/CartContext";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 
 export default function FavoriterPage() {
   const { user } = useUser();
@@ -13,6 +14,7 @@ export default function FavoriterPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSizes, setSelectedSizes] = useState<{[key: number]: string}>({});
+  const [selectedImageIndexes, setSelectedImageIndexes] = useState<{[key: number]: number}>({});
 
   useEffect(() => {
     if (!user?.id) return;
@@ -25,24 +27,53 @@ export default function FavoriterPage() {
         
         console.log("📦 Fetched favorites:", productsWithSizes);
         
-        // ✅ TRANSFORMERA: Mappa product_sizes till sizes
-        const transformedProducts = productsWithSizes.map((product: any) => ({
-          ...product,
-          sizes: product.product_sizes || [] // Använd product_sizes som sizes
-        }));
+        // ✅ TRANSFORMERA: Mappa product_sizes till sizes och hantera bilder
+        const transformedProducts = productsWithSizes.map((product: any) => {
+          // Hantera bilder - använd product_images om de finns, annars fallback till image_url
+          const productImages = product.product_images || [];
+          let images: ProductImage[] = [];
+          
+          if (productImages.length > 0) {
+            // Sortera bilder efter image_order
+            images = productImages.sort((a: ProductImage, b: ProductImage) => 
+              a.image_order - b.image_order
+            );
+          } else {
+            // Fallback: använd den gamla image_url om inga extra bilder finns
+            images = [{
+              id: 0,
+              product_id: product.id,
+              image_url: product.image_url,
+              image_order: 0,
+              created_at: new Date().toISOString()
+            }];
+          }
+          
+          return {
+            ...product,
+            sizes: product.product_sizes || [],
+            images: images
+          };
+        });
         
         console.log("🔄 Transformed products:", transformedProducts);
         
         setProducts(transformedProducts);
         
+        // Initiera storlekar och bildindex
         const initialSizes: {[key: number]: string} = {};
+        const initialImageIndexes: {[key: number]: number} = {};
+        
         transformedProducts.forEach((product: Product) => {
           const availableSizes = product.sizes?.filter((size: ProductSize) => size.in_stock) || [];
           if (availableSizes.length > 0) {
             initialSizes[product.id] = availableSizes[0].size;
           }
+          initialImageIndexes[product.id] = 0; // Starta med första bilden
         });
+        
         setSelectedSizes(initialSizes);
+        setSelectedImageIndexes(initialImageIndexes);
       } catch (err) {
         console.error("❌ Error fetching favorites:", err);
       } finally {
@@ -115,6 +146,54 @@ export default function FavoriterPage() {
     }
   }
 
+  function handleNextImage(productId: number) {
+    const product = products.find(p => p.id === productId);
+    if (!product || !product.images) return;
+
+    const currentIndex = selectedImageIndexes[productId] || 0;
+    const nextIndex = currentIndex === product.images.length - 1 ? 0 : currentIndex + 1;
+    
+    setSelectedImageIndexes(prev => ({
+      ...prev,
+      [productId]: nextIndex
+    }));
+  }
+
+  function handlePrevImage(productId: number) {
+    const product = products.find(p => p.id === productId);
+    if (!product || !product.images) return;
+
+    const currentIndex = selectedImageIndexes[productId] || 0;
+    const prevIndex = currentIndex === 0 ? product.images.length - 1 : currentIndex - 1;
+    
+    setSelectedImageIndexes(prev => ({
+      ...prev,
+      [productId]: prevIndex
+    }));
+  }
+
+  function handleImageSelect(productId: number, imageIndex: number) {
+    setSelectedImageIndexes(prev => ({
+      ...prev,
+      [productId]: imageIndex
+    }));
+  }
+
+  // ✅ Hjälpfunktion för att säkert hämta bilder
+  function getProductImages(product: Product): ProductImage[] {
+    if (product.images && product.images.length > 0) {
+      return product.images;
+    }
+    // Fallback till den gamla image_url
+    return [{
+      id: 0,
+      product_id: product.id,
+      image_url: product.image_url,
+      image_order: 0,
+      created_at: new Date().toISOString()
+    }];
+  }
+
   if (!user) return <p className="text-center mt-10 text-gray-700 dark:text-gray-300">Du måste logga in för att se dina favoriter.</p>;
   if (loading) return <p className="text-center mt-10 text-gray-700 dark:text-gray-300">Laddar favoriter...</p>;
   if (products.length === 0) return <p className="text-center mt-10 text-gray-700 dark:text-gray-300">Du har inga favoriter än.</p>;
@@ -138,14 +217,12 @@ export default function FavoriterPage() {
           const hasSizes = allSizes.length > 0;
           const isProductSoldOut = hasSizes && availableSizes.length === 0;
           const selectedSize = selectedSizes[product.id];
-
-          console.log(`🎯 Rendering product ${product.id}:`, { 
-            title: product.title,
-            hasSizes, 
-            allSizes, 
-            availableSizes, 
-            selectedSize 
-          });
+          const selectedImageIndex = selectedImageIndexes[product.id] || 0;
+          
+          // ✅ Använd säker funktion för att hämta bilder
+          const productImages = getProductImages(product);
+          const currentImage = productImages[selectedImageIndex]?.image_url || product.image_url;
+          const hasMultipleImages = productImages.length > 1;
 
           return (
             <div key={product.id} className={`bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex flex-col p-4 relative ${
@@ -161,13 +238,72 @@ export default function FavoriterPage() {
                 </div>
               )}
 
-              <img
-                src={product.image_url}
-                alt={product.title}
-                className={`w-full h-72 object-cover rounded-xl mb-4 ${
-                  isProductSoldOut ? 'grayscale' : ''
-                }`}
-              />
+              {/* ✅ BILDGALLERI */}
+              <div className="relative mb-4 rounded-xl overflow-hidden">
+                <motion.img
+                  key={`${product.id}-${selectedImageIndex}`}
+                  src={currentImage}
+                  alt={product.title}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                  className={`w-full h-72 object-cover ${
+                    isProductSoldOut ? 'grayscale' : ''
+                  }`}
+                />
+                
+                {/* ✅ Navigeringspilar för bildgalleri */}
+                {hasMultipleImages && (
+                  <>
+                    <button
+                      onClick={() => handlePrevImage(product.id)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 rounded-full p-1.5 shadow-lg transition-all z-10"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleNextImage(product.id)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 rounded-full p-1.5 shadow-lg transition-all z-10"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </>
+                )}
+
+                {/* ✅ Bildräknare */}
+                {hasMultipleImages && (
+                  <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded-full text-xs backdrop-blur-sm">
+                    {selectedImageIndex + 1} / {productImages.length}
+                  </div>
+                )}
+              </div>
+
+              {/* ✅ Miniatyrbilder om fler än 1 bild */}
+              {hasMultipleImages && (
+                <div className="flex space-x-1 mb-4 overflow-x-auto pb-2">
+                  {productImages.map((image, index) => (
+                    <button
+                      key={image.id}
+                      onClick={() => handleImageSelect(product.id, index)}
+                      className={`flex-shrink-0 w-10 h-10 rounded-md overflow-hidden border transition-all ${
+                        selectedImageIndex === index 
+                          ? 'border-pink-500 ring-1 ring-pink-300' 
+                          : 'border-gray-200 dark:border-gray-600 hover:border-gray-400'
+                      }`}
+                    >
+                      <img
+                        src={image.image_url}
+                        alt={`${product.title} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
               
               <h3 className={`font-semibold text-lg mb-2 ${
                 isProductSoldOut ? 'text-gray-500' : 'text-gray-900 dark:text-white'
@@ -180,13 +316,6 @@ export default function FavoriterPage() {
               }`}>
                 {product.price} kr
               </p>
-              
-              {/* ✅ Debug info - visa om storlekar finns */}
-              {!hasSizes && (
-                <p className="text-xs text-gray-500 mb-2">
-                  Ingen storleksinformation tillgänglig
-                </p>
-              )}
 
               {/* ✅ Storleksväljare - Visa ALLA storlekar men bara tillåt val av tillgängliga */}
               {hasSizes && (
@@ -208,8 +337,8 @@ export default function FavoriterPage() {
                           selectedSize === size.size
                             ? 'bg-pink-500 text-white border-pink-500'
                             : size.in_stock && !isProductSoldOut
-                            ? 'bg-white text-gray-700 border-gray-300 hover:border-pink-300 hover:bg-pink-50'
-                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through'
+                            ? 'bg-white text-gray-700 border-gray-300 hover:border-pink-300 hover:bg-pink-50 dark:bg-gray-700 dark:text-white dark:border-gray-600'
+                            : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through dark:bg-gray-800'
                         } ${isProductSoldOut ? 'cursor-not-allowed' : ''}`}
                       >
                         {size.size}

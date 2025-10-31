@@ -17,7 +17,7 @@ export default function Home() {
       // ✅ UPPDATERAD: Hämta produkter MED storlekar
       const { data, error } = await supabase
         .from("products")
-        .select(`*, product_sizes(*)`)
+        .select(`*, product_sizes(*) , product_images(*)`)
         .limit(8);
 
       if (error) console.error(error);

@@ -21,9 +21,18 @@ export interface Product {
   stripe_product_id?: string; 
   sizes?: ProductSize[];  // ✅ Använd sizes array istället för size
   product_sizes?: ProductSize[]; // För API response 👈 Lägg till detta
+  images?: ProductImage[];
+  product_images?: ProductImage[]
 }
 
-// Resten av dina interfaces förblir oförändrade
+export interface ProductImage {
+  id: number;
+  product_id: number;
+  image_url: string;
+  image_order: number;
+  created_at: string;
+}
+
 
 
 // types/types.ts

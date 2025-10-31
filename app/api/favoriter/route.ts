@@ -1,4 +1,4 @@
-// app/api/favoriter/route.ts
+// app/api/favoriter/route.ts - UPPDATERAD
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServerClient";
@@ -64,7 +64,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-// 🔹 GET - Hämta alla favorit-produkter för användaren MED STORLEKAR
+
+// 🔹 GET - Hämta alla favorit-produkter för användaren MED STORLEKAR OCH BILDER
 export async function GET() {
   const { userId } = await auth();
   if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -80,12 +81,13 @@ export async function GET() {
 
   const productIds = favorites.map(f => f.product_id);
 
-  // ✅ UPPDATERAD: Hämta produkterna MED deras storlekar
+  // ✅ UPPDATERAD: Hämta produkterna MED deras storlekar OCH bilder
   const { data: products, error: prodError } = await supabaseServer
     .from("products")
     .select(`
       *,
-      product_sizes(*)
+      product_sizes(*),
+      product_images(*)
     `)
     .in("id", productIds);
 
