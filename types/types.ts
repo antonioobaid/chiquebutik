@@ -36,15 +36,6 @@ export interface CartItem {
   user_id: string;
   products?: Product;  
 }
-export interface ContactInfo {
-  id: number;
-  company: string;
-  address: string;
-  phone: string;
-  opening_hours: string;
-  created_at: string;  
-  email?: string; 
-}
 
 export interface Favorite {
   id: number;
@@ -68,4 +59,25 @@ export interface OrderItem {
   product_id: number;
   quantity: number;
   price: number;
+}
+
+
+export interface ContactInfo {
+  id: number;
+  company: string;
+  address: string;
+  phone: string;
+  opening_hours: string;
+  created_at: string;  
+  email?: string; 
+}
+
+// i din types/types.ts fil, lägg till:
+export interface ContactMessage {
+  id: number;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  created_at: string;
 }
