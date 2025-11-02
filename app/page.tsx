@@ -29,7 +29,7 @@ export default function Home() {
         const res = await fetch("/api/favoriter");
         const json = await res.json();
         if (res.ok && json.products) {
-          setFavorites(json.products.map((item: any) => item.id));
+          setFavorites(json.products.map((item: Product) => item.id));
         }
       } catch (error) {
         console.error("Kunde inte hämta favoriter:", error);

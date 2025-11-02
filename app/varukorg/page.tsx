@@ -1,6 +1,7 @@
 'use client';
 
 import Link from "next/link";
+import Image from "next/image"; // ✅ Importera Next.js Image
 import { useCart } from "@/components/CartContext";
 import { useState } from "react";
 
@@ -45,20 +46,21 @@ export default function CartPage() {
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 py-12">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Products List */}
+          {/* Product list */}
           <div className="lg:col-span-2">
             <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">Varukorg ({totalQuantity} produkter)</h1>
-              
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
+                Varukorg ({totalQuantity} produkter)
+              </h1>
+
               <div className="space-y-0">
                 {cartItems.map((item, index) => (
                   <div key={item.id}>
-                    <CartItem 
-                      item={item} 
+                    <CartItem
+                      item={item}
                       onUpdateQuantity={updateQuantity}
                       onRemove={removeFromCart}
                     />
-                    {/* Linje mellan produkter (inte efter sista) */}
                     {index < cartItems.length - 1 && (
                       <div className="border-b border-gray-200 dark:border-gray-700 my-6"></div>
                     )}
@@ -68,7 +70,7 @@ export default function CartPage() {
             </div>
           </div>
 
-          {/* Order Summary */}
+          {/* Order summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-8">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
@@ -88,7 +90,7 @@ export default function CartPage() {
                   <span>Frakt</span>
                   <span className="text-green-600 font-semibold">Gratis</span>
                 </div>
-                
+
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between text-xl font-bold text-gray-900 dark:text-white">
                     <span>Totalt</span>
@@ -106,23 +108,6 @@ export default function CartPage() {
               >
                 Fortsätt till kassan
               </Link>
-
-              <div className="mt-6 text-center">
-                <div className="flex justify-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                  <span className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Säker betalning
-                  </span>
-                  <span className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Snabb leverans
-                  </span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -131,14 +116,17 @@ export default function CartPage() {
   );
 }
 
-// Cart Item Component
-function CartItem({ item, onUpdateQuantity, onRemove }: { 
-  item: any; 
+// ✅ Uppdaterad CartItem-komponent
+function CartItem({
+  item,
+  onUpdateQuantity,
+  onRemove,
+}: {
+  item: any;
   onUpdateQuantity: (id: number, quantity: number) => void;
   onRemove: (id: number) => void;
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-
   const quantityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   const handleQuantitySelect = (newQuantity: number) => {
@@ -148,16 +136,19 @@ function CartItem({ item, onUpdateQuantity, onRemove }: {
 
   return (
     <div className="flex items-start space-x-6 py-4">
-      {/* Product Image */}
-      <div className="flex-shrink-0">
-        <img
+      {/* ✅ Produktbild med Next.js Image */}
+      <div className="flex-shrink-0 relative w-24 h-32">
+        <Image
           src={item.products?.image_url || "/placeholder.png"}
           alt={item.products?.title || "Produktbild"}
-          className="w-24 h-32 object-cover rounded-xl shadow-md"
+          fill
+          className="object-cover rounded-xl shadow-md"
+          sizes="(max-width: 768px) 100vw, 33vw"
+          priority
         />
       </div>
 
-      {/* Product Details */}
+      {/* Produktdetaljer */}
       <div className="flex-grow">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -173,7 +164,6 @@ function CartItem({ item, onUpdateQuantity, onRemove }: {
             </p>
           </div>
 
-          {/* Remove Button */}
           <button
             onClick={() => onRemove(item.id)}
             className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors p-2"
@@ -185,7 +175,7 @@ function CartItem({ item, onUpdateQuantity, onRemove }: {
           </button>
         </div>
 
-        {/* Quantity Selector and Total */}
+        {/* Antal + totalpris */}
         <div className="flex items-center justify-between">
           <div className="relative">
             <button
@@ -193,10 +183,10 @@ function CartItem({ item, onUpdateQuantity, onRemove }: {
               className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:border-pink-300 dark:hover:border-purple-400 transition-colors"
             >
               <span className="font-medium">Antal: {item.quantity}</span>
-              <svg 
-                className={`w-4 h-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -209,10 +199,10 @@ function CartItem({ item, onUpdateQuantity, onRemove }: {
                   <button
                     key={quantity}
                     onClick={() => handleQuantitySelect(quantity)}
-                    className={`w-full px-4 py-2 text-left hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 dark:hover:from-pink-900/20 dark:hover:to-purple-900/20 transition-colors ${
-                      quantity === item.quantity 
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold' 
-                        : 'text-gray-700 dark:text-gray-300'
+                    className={`w-full px-4 py-2 text-left transition-colors ${
+                      quantity === item.quantity
+                        ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold"
+                        : "hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 dark:hover:from-pink-900/20 dark:hover:to-purple-900/20 text-gray-700 dark:text-gray-300"
                     }`}
                   >
                     {quantity} st
@@ -222,7 +212,6 @@ function CartItem({ item, onUpdateQuantity, onRemove }: {
             )}
           </div>
 
-          {/* Line Total */}
           <div className="text-right">
             <p className="font-bold text-gray-900 dark:text-white text-lg">
               {(item.products?.price ?? 0) * item.quantity} kr

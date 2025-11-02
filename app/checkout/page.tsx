@@ -4,6 +4,7 @@ import { useCart } from "@/components/CartContext";
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import Image from "next/image"; // ✅ Importera Image från next/image
 
 export default function CheckoutPage() {
   const { cartItems } = useCart();
@@ -111,7 +112,7 @@ export default function CheckoutPage() {
 
       <div className="max-w-6xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Left Side - Checkout Form */}
+          {/* Left Side */}
           <div className="space-y-8">
             {/* Progress Steps */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -184,10 +185,12 @@ export default function CheckoutPage() {
               <div className="space-y-3">
                 {cartItems.slice(0, 3).map((item, index) => (
                   <div key={index} className="flex items-center space-x-3">
-                    <img
+                    <Image
                       src={item.products?.image_url || "/placeholder.png"}
                       alt={item.products?.title || "Produkt"}
-                      className="w-12 h-12 rounded-lg object-cover"
+                      width={48}
+                      height={48}
+                      className="rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -228,10 +231,12 @@ export default function CheckoutPage() {
                     
                     return (
                       <div key={index} className="flex items-center space-x-4 pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                        <img
+                        <Image
                           src={productImage}
                           alt={productTitle}
-                          className="w-16 h-20 rounded-lg object-cover shadow-sm"
+                          width={64}
+                          height={80}
+                          className="rounded-lg object-cover shadow-sm"
                         />
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 dark:text-white text-sm">

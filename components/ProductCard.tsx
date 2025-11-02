@@ -1,9 +1,10 @@
-'use client'
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
 import { Product } from '@/types/types';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -18,10 +19,10 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
     setIsFavorite(initialFavorite);
   }, [initialFavorite]);
 
-  // ✅ Hämta första bilden från product_images array, fallback till image_url
+  // ✅ Hämta första bilden från product_images eller fallback till image_url
   const getProductImage = () => {
-    if (product.images && product.images.length > 0) {
-      const sortedImages = [...product.images].sort((a, b) => a.image_order - b.image_order);
+    if (product.product_images && product.product_images.length > 0) {
+      const sortedImages = [...product.product_images].sort((a, b) => a.image_order - b.image_order);
       return sortedImages[0].image_url;
     }
     return product.image_url;
@@ -56,22 +57,23 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
     }
   }
 
-  // ✅ Kolla om produkten är HELT slut
-  const allSizes = product.sizes || [];
+  // ✅ Kolla om produkten är slut
+  const allSizes = product.product_sizes || [];
   const availableSizes = allSizes.filter(size => size.in_stock);
   const isProductSoldOut = allSizes.length > 0 && availableSizes.length === 0;
-  
-  const sizeText = allSizes.length > 0 
-    ? `Storlekar: ${allSizes.map(size => 
+
+  const sizeText = allSizes.length > 0
+    ? `Storlekar: ${allSizes.map(size =>
         size.in_stock ? size.size : `<s class="text-gray-400">${size.size}</s>`
       ).join(', ')}`
     : '';
 
   return (
-    <div className={`group bg-white dark:bg-gray-800 transition-all duration-300 overflow-hidden relative w-full ${
-      isProductSoldOut ? 'opacity-80 grayscale' : ''
-    }`}>
-      
+    <div
+      className={`group bg-white dark:bg-gray-800 transition-all duration-300 overflow-hidden relative w-full ${
+        isProductSoldOut ? 'opacity-80 grayscale' : ''
+      }`}
+    >
       {/* ✅ SOLD OUT BADGE */}
       {isProductSoldOut && (
         <div className="absolute top-4 left-4 z-20">
@@ -81,18 +83,19 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
         </div>
       )}
 
-      {/* ✅ Länka bara om produkten INTE är slut */}
+      {/* ✅ Produktkort med/utan länk */}
       {isProductSoldOut ? (
-        // Visa produktkort utan länk om den är slut
         <div className="cursor-not-allowed h-full flex flex-col">
           <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 flex-1">
-            {/* ✅ STÖRRE BILD: Ingen hover-effekt */}
-            <img
+            <Image
               src={productImage}
               alt={product.title}
+              width={400}
+              height={400}
               className="w-full h-96 object-contain grayscale"
+              sizes="100vw"
+              priority
             />
-            {/* ✅ HJÄRTA: Bara rött när klickat */}
             <button
               onClick={handleFavorite}
               className={`absolute top-4 right-4 text-3xl drop-shadow-lg transition-all duration-300 ${
@@ -104,20 +107,16 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
           </div>
 
           <div className="p-6 flex flex-col gap-3">
-            <h3 className="text-xl font-semibold text-gray-500">
-              {product.title}
-            </h3>
+            <h3 className="text-xl font-semibold text-gray-500">{product.title}</h3>
             <p className="text-gray-400 text-base line-clamp-2">
               {product.description?.length ? product.description : 'Elegant och stilren klänning.'}
             </p>
-
             {sizeText && (
-              <p 
+              <p
                 className="text-gray-400 text-sm"
                 dangerouslySetInnerHTML={{ __html: sizeText }}
               />
             )}
-
             <div className="flex items-center justify-between mt-4">
               <span className="text-2xl font-bold text-gray-400 line-through">
                 {product.price} kr
@@ -127,19 +126,17 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
           </div>
         </div>
       ) : (
-        // Vanligt produktkort med länk
-        <Link
-          href={`/produkter/${product.id}`}
-          className="block h-full flex flex-col"
-        >
+        <Link href={`/produkter/${product.id}`} className="block h-full flex flex-col">
           <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 flex-1">
-            {/* ✅ STÖRRE BILD: Ingen hover-effekt på bilden */}
-            <img
+            <Image
               src={productImage}
               alt={product.title}
-              className="w-full h-96 object-contain"
+              width={400}
+              height={400}
+              className="w-full h-96 object-contain transition-transform duration-300 group-hover:scale-105"
+              sizes="100vw"
+              priority
             />
-            {/* ✅ HJÄRTA: Bara rött när klickat */}
             <button
               onClick={handleFavorite}
               className={`absolute top-4 right-4 text-3xl drop-shadow-lg transition-all duration-300 ${
@@ -157,14 +154,12 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
             <p className="text-gray-600 dark:text-gray-300 text-base line-clamp-2">
               {product.description?.length ? product.description : 'Elegant och stilren klänning.'}
             </p>
-
             {sizeText && (
-              <p 
+              <p
                 className="text-gray-500 dark:text-gray-400 text-sm"
                 dangerouslySetInnerHTML={{ __html: sizeText }}
               />
             )}
-
             <div className="flex items-center justify-between mt-4">
               <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
                 {product.price} kr

@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
 import ProductCard from '../../components/ProductCard'
-import { Product } from '@/types/types'
+import { Product, Favorite } from '@/types/types'
 import { useUser } from '@clerk/nextjs'
 
 export default function ProductsPage() {
@@ -16,16 +16,16 @@ export default function ProductsPage() {
     async function fetchProducts() {
       const { data, error } = await supabase
         .from('products')
-        .select(`*, product_sizes(*) product_images(*)`)
+        .select(`*, product_sizes(*) , product_images(*)`)
 
       if (error) console.error(error)
       else {
         // ✅ TRANSFORMERA: Mappa product_sizes till sizes
-        const transformedProducts = data.map((product: any) => ({
+        const transformedProducts = (data as Product[]).map((product) => ({
           ...product,
           sizes: product.product_sizes || []
-        }));
-        setProducts(transformedProducts as Product[])
+        }))
+        setProducts(transformedProducts)
       }
     }
 
@@ -37,7 +37,9 @@ export default function ProductsPage() {
         const json = await res.json()
 
         if (res.ok && json.products) {
-          const favoriteIds = json.products.map((item: any) => Number(item.id))
+          const favoriteIds = (json.products as Favorite[]).map(
+            (item) => Number(item.product_id)
+          )
           setFavorites(favoriteIds)
         }
       } catch (error) {

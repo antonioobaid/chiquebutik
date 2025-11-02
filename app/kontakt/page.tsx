@@ -315,7 +315,7 @@ export default function ContactPage() {
                     disabled={isSubmitting}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 disabled:cursor-not-allowed"
+                    className="w-full bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 hover:from-blue-700 hover:to-purple-700 disabled:from-gray-400 disabled:to-gray-400 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 disabled:cursor-not-allowed"
                   >
                     {isSubmitting ? (
                       <span className="flex items-center justify-center">
@@ -449,7 +449,7 @@ export default function ContactPage() {
                     href="https://www.instagram.com/chiquebutik.se/" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all"
+                    className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-white rounded-xl hover:from-pink-600 hover:to-purple-600 transition-all"
                   >
                     <span>Följ på Instagram</span>
                     <span>→</span>
