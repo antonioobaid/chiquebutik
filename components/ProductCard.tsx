@@ -1,4 +1,3 @@
-// components/ProductCard.tsx - Uppdaterad version
 'use client'
 
 import { useState, useEffect } from 'react';
@@ -22,11 +21,10 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
   // ✅ Hämta första bilden från product_images array, fallback till image_url
   const getProductImage = () => {
     if (product.images && product.images.length > 0) {
-      // Sortera bilder efter image_order och ta första
       const sortedImages = [...product.images].sort((a, b) => a.image_order - b.image_order);
       return sortedImages[0].image_url;
     }
-    return product.image_url; // Fallback till gamla image_url
+    return product.image_url;
   };
 
   const productImage = getProductImage();
@@ -36,7 +34,7 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
     e.stopPropagation();
 
     if (!user) {
-      alert("Du måste vara inloggad för att gilla produkter.");
+      alert("Du måste vara inloggad för att spara favoriter.");
       return;
     }
 
@@ -70,14 +68,14 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
     : '';
 
   return (
-    <div className={`group bg-white dark:bg-gray-800 rounded-2xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden relative focus:outline-none focus:ring-0 ${
+    <div className={`group bg-white dark:bg-gray-800 transition-all duration-300 overflow-hidden relative w-full ${
       isProductSoldOut ? 'opacity-80 grayscale' : ''
     }`}>
       
       {/* ✅ SOLD OUT BADGE */}
       {isProductSoldOut && (
-        <div className="absolute top-3 left-3 z-20">
-          <span className="bg-red-500 text-white px-3 py-1 rounded-full font-bold text-xs shadow-lg">
+        <div className="absolute top-4 left-4 z-20">
+          <span className="bg-red-500 text-white px-4 py-2 rounded-full font-bold text-sm shadow-lg">
             SLUT I LAGER
           </span>
         </div>
@@ -86,43 +84,45 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
       {/* ✅ Länka bara om produkten INTE är slut */}
       {isProductSoldOut ? (
         // Visa produktkort utan länk om den är slut
-        <div className="cursor-not-allowed">
-          <div className="relative overflow-hidden">
+        <div className="cursor-not-allowed h-full flex flex-col">
+          <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 flex-1">
+            {/* ✅ STÖRRE BILD: Ingen hover-effekt */}
             <img
-              src={productImage} // ✅ Använd den nya bildfunktionen
+              src={productImage}
               alt={product.title}
-              className="w-full h-64 object-cover grayscale"
+              className="w-full h-96 object-contain grayscale"
             />
+            {/* ✅ HJÄRTA: Bara rött när klickat */}
             <button
               onClick={handleFavorite}
-              className={`absolute top-3 right-3 text-2xl drop-shadow-sm transition-transform duration-300 ${
-                isFavorite ? 'text-red-500 scale-110' : 'text-gray-400'
+              className={`absolute top-4 right-4 text-3xl drop-shadow-lg transition-all duration-300 ${
+                isFavorite ? 'text-red-500 scale-110' : 'text-white/80 hover:text-white'
               } hover:scale-125 z-20`}
             >
               ♥
             </button>
           </div>
 
-          <div className="p-4 flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-gray-500">
+          <div className="p-6 flex flex-col gap-3">
+            <h3 className="text-xl font-semibold text-gray-500">
               {product.title}
             </h3>
-            <p className="text-gray-400 text-sm line-clamp-2">
+            <p className="text-gray-400 text-base line-clamp-2">
               {product.description?.length ? product.description : 'Elegant och stilren klänning.'}
             </p>
 
             {sizeText && (
               <p 
-                className="text-gray-400 text-xs"
+                className="text-gray-400 text-sm"
                 dangerouslySetInnerHTML={{ __html: sizeText }}
               />
             )}
 
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-xl font-bold text-gray-400 line-through">
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-2xl font-bold text-gray-400 line-through">
                 {product.price} kr
               </span>
-              <span className="text-sm text-gray-400">Slut</span>
+              <span className="text-base text-gray-400 font-medium">Slut</span>
             </div>
           </div>
         </div>
@@ -130,44 +130,48 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
         // Vanligt produktkort med länk
         <Link
           href={`/produkter/${product.id}`}
-          className="block"
+          className="block h-full flex flex-col"
         >
-          <div className="relative overflow-hidden">
+          <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 flex-1">
+            {/* ✅ STÖRRE BILD: Ingen hover-effekt på bilden */}
             <img
-              src={productImage} // ✅ Använd den nya bildfunktionen
+              src={productImage}
               alt={product.title}
-              className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-105"
+              className="w-full h-96 object-contain"
             />
+            {/* ✅ HJÄRTA: Bara rött när klickat */}
             <button
               onClick={handleFavorite}
-              className={`absolute top-3 right-3 text-2xl drop-shadow-sm transition-transform duration-300 ${
-                isFavorite ? 'text-red-500 scale-110' : 'text-gray-300 group-hover:text-gray-400'
+              className={`absolute top-4 right-4 text-3xl drop-shadow-lg transition-all duration-300 ${
+                isFavorite ? 'text-red-500 scale-110' : 'text-white/80 hover:text-white'
               } hover:scale-125 z-20`}
             >
               ♥
             </button>
           </div>
 
-          <div className="p-4 flex flex-col gap-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 transition-colors">
+          <div className="p-6 flex flex-col gap-3">
+            <h3 className="text-xl font-semibold text-gray-900 dark:text-white group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
               {product.title}
             </h3>
-            <p className="text-gray-600 dark:text-gray-300 text-sm line-clamp-2">
+            <p className="text-gray-600 dark:text-gray-300 text-base line-clamp-2">
               {product.description?.length ? product.description : 'Elegant och stilren klänning.'}
             </p>
 
             {sizeText && (
               <p 
-                className="text-gray-500 dark:text-gray-400 text-xs"
+                className="text-gray-500 dark:text-gray-400 text-sm"
                 dangerouslySetInnerHTML={{ __html: sizeText }}
               />
             )}
 
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
                 {product.price} kr
               </span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">Se mer →</span>
+              <span className="text-base text-gray-500 dark:text-gray-400 group-hover:bg-gradient-to-r group-hover:from-pink-500 group-hover:to-purple-500 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300">
+                Se mer ›
+              </span>
             </div>
           </div>
         </Link>

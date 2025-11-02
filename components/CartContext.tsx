@@ -9,6 +9,7 @@ interface CartContextType {
   cartItems: CartItem[];
   addToCart: (productId: number, size?: string) => Promise<boolean>;
   removeFromCart: (cartId: number) => Promise<void>;
+  updateQuantity: (cartItemId: number, newQuantity: number) => Promise<void>;
   clearCart: () => void;
   error: string | null;
   clearError: () => void;
@@ -108,7 +109,6 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }
 
-  // ... resten av koden förblir oförändrad
   // ✅ Ta bort produkt från varukorgen
   async function removeFromCart(cartId: number) {
     try {
@@ -124,6 +124,44 @@ export function CartProvider({ children }: CartProviderProps) {
     } catch (error) {
       console.error(error);
       setError("Ett fel uppstod när produkten skulle tas bort");
+    }
+  }
+
+  // ✅ NY FUNKTION: Uppdatera antal av produkt i varukorgen
+  async function updateQuantity(cartItemId: number, newQuantity: number) {
+    if (newQuantity < 1) {
+      removeFromCart(cartItemId);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/cart", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          cartItemId, 
+          quantity: newQuantity 
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // Uppdatera lokalt state
+        setCartItems(prev => 
+          prev.map(item => 
+            item.id === cartItemId 
+              ? { ...item, quantity: newQuantity }
+              : item
+          )
+        );
+        setError(null);
+      } else {
+        setError(data.error || "Kunde inte uppdatera antal");
+      }
+    } catch (error) {
+      console.error(error);
+      setError("Ett fel uppstod när antalet skulle uppdateras");
     }
   }
 
@@ -150,6 +188,7 @@ export function CartProvider({ children }: CartProviderProps) {
       cartItems, 
       addToCart, 
       removeFromCart, 
+      updateQuantity, // ✅ Lade till den nya funktionen
       clearCart,
       error,
       clearError

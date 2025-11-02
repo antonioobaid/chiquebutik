@@ -238,8 +238,8 @@ export default function FavoriterPage() {
                 </div>
               )}
 
-              {/* ✅ BILDGALLERI */}
-              <div className="relative mb-4 rounded-xl overflow-hidden">
+              {/* ✅ BILDGALLERI - UPPDATERAD: Visa hela bilden */}
+              <div className="relative mb-4 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
                 <motion.img
                   key={`${product.id}-${selectedImageIndex}`}
                   src={currentImage}
@@ -247,7 +247,7 @@ export default function FavoriterPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ duration: 0.3 }}
-                  className={`w-full h-72 object-cover ${
+                  className={`w-full max-h-80 object-contain ${
                     isProductSoldOut ? 'grayscale' : ''
                   }`}
                 />
