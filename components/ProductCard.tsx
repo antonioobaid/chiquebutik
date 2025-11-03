@@ -126,7 +126,7 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
           </div>
         </div>
       ) : (
-        <Link href={`/produkter/${product.id}`} className="block h-full flex flex-col">
+        <Link href={`/produkter/${product.id}`} className="flex flex-col h-full">
           <div className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 flex-1">
             <Image
               src={productImage}
