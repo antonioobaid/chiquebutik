@@ -3,11 +3,12 @@ import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServerClient';
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-let resend: any = null;
+let resend: unknown = null;
 
 if (RESEND_API_KEY) {
   try {
-    const { Resend } = require('resend');
+    // Använd dynamisk import istället för require
+    const { Resend } = await import('resend');
     resend = new Resend(RESEND_API_KEY);
     console.log('✅ Resend initialized successfully');
   } catch (error) {
@@ -38,7 +39,12 @@ export async function POST(request: Request) {
     // Spara meddelandet i Supabase
     const { data, error } = await supabaseServer
       .from('contact_messages')
-      .insert([{ name: name.trim(), email: email.trim(), subject: subject.trim(), message: message.trim() }])
+      .insert([{ 
+        name: name.trim(), 
+        email: email.trim(), 
+        subject: subject.trim(), 
+        message: message.trim() 
+      }])
       .select();
 
     if (error) {
@@ -56,11 +62,14 @@ export async function POST(request: Request) {
       try {
         console.log('🔄 Försöker skicka email...');
         
+        // Type assertion för Resend instance
+        const resendInstance = resend as { emails: { send: (options: any) => Promise<any> } };
+        
         // Skicka till ägaren
-        const ownerResult = await resend.emails.send({
+        const ownerResult = await resendInstance.emails.send({
           from: 'ChiqueButik <onboarding@resend.dev>',
           to: process.env.YOUR_EMAIL!,
-          replyTo: email, // ⬅️ LÄGG TILL DENNA RAD! Nu kan du svara direkt
+          replyTo: email,
           subject: `📨 Nytt meddelande från ${name}: ${subject}`,
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -88,7 +97,7 @@ export async function POST(request: Request) {
 
         // Skicka bekräftelse till kunden
         try {
-          const customerResult = await resend.emails.send({
+          const customerResult = await resendInstance.emails.send({
             from: 'ChiqueButik <onboarding@resend.dev>',
             to: email,
             subject: 'Tack för ditt meddelande till ChiqueButik!',
@@ -122,12 +131,18 @@ export async function POST(request: Request) {
 
           console.log('✅ Bekräftelse skickad till kund! Response:', customerResult);
 
-        } catch (customerError: any) {
-          console.error('❌ Kunde inte skicka bekräftelse till kund:', customerError.message);
+        } catch (customerError: unknown) {
+          const errorMessage = customerError instanceof Error 
+            ? customerError.message 
+            : 'Unknown error occurred';
+          console.error('❌ Kunde inte skicka bekräftelse till kund:', errorMessage);
         }
 
-      } catch (emailError: any) {
-        console.error('❌ EMAIL FEL:', emailError.message);
+      } catch (emailError: unknown) {
+        const errorMessage = emailError instanceof Error 
+          ? emailError.message 
+          : 'Unknown error occurred';
+        console.error('❌ EMAIL FEL:', errorMessage);
       }
     } else {
       console.log('📧 RESEND EJ TILLGÄNGLIG - Testläge');

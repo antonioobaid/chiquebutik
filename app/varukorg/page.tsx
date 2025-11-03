@@ -1,9 +1,10 @@
 'use client';
 
 import Link from "next/link";
-import Image from "next/image"; // ✅ Importera Next.js Image
+import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { useState } from "react";
+import { CartItem as CartItemType, Product } from "@/types/types";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity } = useCart();
@@ -116,13 +117,13 @@ export default function CartPage() {
   );
 }
 
-// ✅ Uppdaterad CartItem-komponent
+// ✅ Uppdaterad CartItem-komponent med korrekta typer
 function CartItem({
   item,
   onUpdateQuantity,
   onRemove,
 }: {
-  item: any;
+  item: CartItemType;
   onUpdateQuantity: (id: number, quantity: number) => void;
   onRemove: (id: number) => void;
 }) {

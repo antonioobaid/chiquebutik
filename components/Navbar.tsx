@@ -5,6 +5,7 @@ import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 import { Heart, ShoppingCart, Store, Search, User, Phone, X } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Product } from "@/types/types";
+import Image from "next/image";
 
 export default function Navbar() {
   const router = useRouter();
@@ -107,9 +108,11 @@ export default function Navbar() {
                     }}
                     className="flex items-center gap-4 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 cursor-pointer transition"
                   >
-                    <img
+                    <Image
                       src={product.image_url}
                       alt={product.title}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-md object-cover"
                     />
                     <div>

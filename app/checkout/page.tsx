@@ -11,7 +11,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState("card");
   const [loading, setLoading] = useState(false);
-  const [activeStep, setActiveStep] = useState(1);
+  const [activeStep] = useState(1); // 🔥 TA BORT setActiveStep - den används inte
   
   const { user } = useUser();
   const userId = user?.id;
@@ -232,12 +232,14 @@ export default function CheckoutPage() {
                     return (
                       <div key={index} className="flex items-center space-x-4 pb-4 border-b border-gray-100 dark:border-gray-700 last:border-0">
                         <Image
-                          src={productImage}
+                          src={(productImage || "/placeholder.png").trim()}
                           alt={productTitle}
                           width={64}
                           height={80}
+                          priority
                           className="rounded-lg object-cover shadow-sm"
                         />
+
                         <div className="flex-1">
                           <h4 className="font-semibold text-gray-900 dark:text-white text-sm">
                             {productTitle}

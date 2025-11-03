@@ -26,7 +26,7 @@ export default function FavoriterPage() {
         const json = await res.json();
         const productsWithSizes = json.products || [];
 
-        const transformedProducts = productsWithSizes.map((product: any) => {
+        const transformedProducts = productsWithSizes.map((product: Product) => {
           const productImages = product.product_images || [];
           let images: ProductImage[] = [];
 

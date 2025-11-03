@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServerClient";
+import { Product, Favorite } from "@/types/types";
 
 // 🔹 POST - Toggle favorit (lägg till eller ta bort)
 export async function POST(req: Request) {

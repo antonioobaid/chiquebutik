@@ -3,6 +3,7 @@
 import { useCart } from "@/components/CartContext";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 
 interface LineItem {
   quantity: number;
@@ -30,6 +31,11 @@ interface PaymentInfo {
   };
   line_items?: {
     data: LineItem[];
+  };
+  // 🔥 LÄGG TILL customer_details för Stripe kompatibilitet
+  customer_details?: {
+    name?: string | null;
+    email?: string | null;
   };
 }
 
@@ -98,16 +104,16 @@ export default function SuccessPage() {
   }
 
   // ✅ Hanterar både customer och customer_details från Stripe
-const customerName =
-  paymentInfo.customer?.name ||
-  (paymentInfo as any).customer_details?.name ||
-  "Gäst";
+  const customerName =
+    paymentInfo.customer?.name ||
+    paymentInfo.customer_details?.name ||
+    "Gäst";
 
-const customerEmail =
-  paymentInfo.customer?.email ||
-  (paymentInfo as any).customer_details?.email ||
-  paymentInfo.customer_email ||
-  "Ej angivet";
+  const customerEmail =
+    paymentInfo.customer?.email ||
+    paymentInfo.customer_details?.email ||
+    paymentInfo.customer_email ||
+    "Ej angivet";
 
   const amount = (paymentInfo.amount_total / 100).toFixed(2);
   const currency = paymentInfo.currency.toUpperCase();
@@ -141,9 +147,11 @@ const customerEmail =
                   className="flex items-center gap-3 border-b border-gray-200 pb-2"
                 >
                   {item.price.product.images?.[0] && (
-                    <img
+                    <Image
                       src={item.price.product.images[0]}
                       alt={item.price.product.name}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 rounded-lg object-cover"
                     />
                   )}

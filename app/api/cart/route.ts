@@ -1,7 +1,9 @@
+
 // app/api/cart/route.ts
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServerClient";
+import { Product, ProductSize } from "@/types/types";
 
 // GET - Hämta användarens varukorg
 export async function GET() {
@@ -17,7 +19,7 @@ export async function GET() {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({ cart: data || [] }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("GET /cart error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
@@ -36,7 +38,7 @@ export async function POST(req: Request) {
 
     if (!productId) return NextResponse.json({ error: "productId is required" }, { status: 400 });
 
-    // ✅ NYTT: Kontrollera om produkten finns och dess lagerstatus
+    // Kontrollera om produkten finns och dess lagerstatus
     const { data: product, error: productError } = await supabaseServer
       .from("products")
       .select(`
@@ -50,24 +52,24 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Produkten hittades inte" }, { status: 404 });
     }
 
-    // ✅ NYTT: Kontrollera om produkten är HELT slut
-    const allSizes = product.product_sizes || [];
-    const availableSizes = allSizes.filter((sizeItem: any) => sizeItem.in_stock);
+    // Kontrollera om produkten är HELT slut
+    const allSizes: ProductSize[] = product.product_sizes || [];
+    const availableSizes = allSizes.filter((sizeItem: ProductSize) => sizeItem.in_stock);
     const isProductSoldOut = allSizes.length > 0 && availableSizes.length === 0;
 
     if (isProductSoldOut) {
       return NextResponse.json({ error: "Denna produkt är tyvärr slut i lager" }, { status: 400 });
     }
 
-    // ✅ NYTT: Om produkten har storlekar, kontrollera att vald storlek finns i lager
+    // Om produkten har storlekar, kontrollera att vald storlek finns i lager
     if (allSizes.length > 0 && size) {
-      const selectedSize = allSizes.find((sizeItem: any) => sizeItem.size === size);
+      const selectedSize = allSizes.find((sizeItem: ProductSize) => sizeItem.size === size);
       if (!selectedSize || !selectedSize.in_stock) {
         return NextResponse.json({ error: `Storlek ${size} är tyvärr slut i lager` }, { status: 400 });
       }
     }
 
-    // ✅ FIX: Hantera null/undefined size korrekt
+    // Hantera null/undefined size korrekt
     let existingQuery = supabaseServer
       .from("cart")
       .select("*")
@@ -90,7 +92,7 @@ export async function POST(req: Request) {
     let result;
 
     if (existing) {
-      // ✅ FIX: Öka quantity och använd .single()
+      // Öka quantity och använd .single()
       const { data, error } = await supabaseServer
         .from("cart")
         .update({ quantity: existing.quantity + quantity })
@@ -101,7 +103,7 @@ export async function POST(req: Request) {
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
       result = data;
     } else {
-      // ✅ FIX: Lägg till ny produkt och använd .single()
+      // Lägg till ny produkt och använd .single()
       const { data, error } = await supabaseServer  
         .from("cart")
         .insert([{ 
@@ -118,7 +120,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ cartItem: result }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("POST /cart error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
@@ -142,7 +144,7 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Quantity must be at least 1" }, { status: 400 });
     }
 
-    // ✅ KONTROLLERA LAGERSTATUS INNAN UPPDATERING
+    // KONTROLLERA LAGERSTATUS INNAN UPPDATERING
     // Hämta cart item med produktinfo för att kolla lager
     const { data: cartItem, error: cartError } = await supabaseServer
       .from("cart")
@@ -155,9 +157,9 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Varukorgsitem hittades inte" }, { status: 404 });
     }
 
-    const product = cartItem.products;
-    const allSizes = product.product_sizes || [];
-    const availableSizes = allSizes.filter((sizeItem: any) => sizeItem.in_stock);
+    const product = cartItem.products as Product;
+    const allSizes: ProductSize[] = product.product_sizes || [];
+    const availableSizes = allSizes.filter((sizeItem: ProductSize) => sizeItem.in_stock);
     const isProductSoldOut = allSizes.length > 0 && availableSizes.length === 0;
 
     if (isProductSoldOut) {
@@ -166,13 +168,13 @@ export async function PUT(req: Request) {
 
     // Om produkten har storlekar, kontrollera att den valda storleken fortfarande finns i lager
     if (allSizes.length > 0 && cartItem.size) {
-      const selectedSize = allSizes.find((sizeItem: any) => sizeItem.size === cartItem.size);
+      const selectedSize = allSizes.find((sizeItem: ProductSize) => sizeItem.size === cartItem.size);
       if (!selectedSize || !selectedSize.in_stock) {
         return NextResponse.json({ error: `Storlek ${cartItem.size} är tyvärr slut i lager` }, { status: 400 });
       }
     }
 
-    // ✅ Uppdatera antal i databasen
+    // Uppdatera antal i databasen
     const { data, error } = await supabaseServer
       .from("cart")
       .update({ quantity })
@@ -187,7 +189,7 @@ export async function PUT(req: Request) {
     }
 
     return NextResponse.json({ success: true, cartItem: data }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("PUT /cart error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
@@ -212,7 +214,7 @@ export async function DELETE(req: Request) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
     return NextResponse.json({ success: true }, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("DELETE /cart error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }

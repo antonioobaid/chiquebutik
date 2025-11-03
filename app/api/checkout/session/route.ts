@@ -28,8 +28,15 @@ export async function GET(req: NextRequest) {
 
     // ✅ Skicka hela sessionen som JSON till frontend (SuccessPage)
     return NextResponse.json({ session });
-  } catch (err: any) {
-    console.error("❌ Error fetching Stripe session:", err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    console.error("❌ Error fetching Stripe session:", err);
+    
+    // Type-safe error handling
+    let errorMessage = "Internal Server Error";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+    
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

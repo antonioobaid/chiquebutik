@@ -26,8 +26,12 @@ export async function DELETE() {
       { success: true, message: "Varukorgen rensades." },
       { status: 200 }
     );
-  } catch (err: any) {
-    console.error("API /cart/clear error:", err);
+  } catch (err: unknown) {  // 👈 ändrat från "any" till "unknown"
+    if (err instanceof Error) {
+      console.error("API /cart/clear error:", err.message);
+    } else {
+      console.error("API /cart/clear unknown error:", err);
+    }
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

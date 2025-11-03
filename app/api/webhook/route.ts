@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { OrderItem } from "@/types/types";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: "2025-09-30.clover",
@@ -23,9 +24,10 @@ export async function POST(req: Request) {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET!
     );
-  } catch (err: any) {
-    console.error("❌ Webhook signature verification failed:", err.message);
-    return NextResponse.json({ error: err.message }, { status: 400 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+    console.error("❌ Webhook signature verification failed:", errorMessage);
+    return NextResponse.json({ error: errorMessage }, { status: 400 });
   }
 
   // 🎯 Hantera checkout.session.completed
@@ -54,7 +56,7 @@ export async function POST(req: Request) {
       // 🧾 Hämta produkterna från Stripe-sessionen
       const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
-      const orderItems: any[] = [];
+      const orderItems: Omit<OrderItem, 'id'>[] = [];
 
       for (const item of lineItems.data) {
         const stripeProductId = item.price?.product as string;
@@ -84,9 +86,10 @@ export async function POST(req: Request) {
       }
 
       console.log("✅ Order och order_items skapades i databasen!");
-    } catch (err: any) {
-      console.error("❌ Webhook error:", err.message);
-      return NextResponse.json({ error: err.message }, { status: 500 });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+      console.error("❌ Webhook error:", errorMessage);
+      return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
   }
 
