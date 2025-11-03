@@ -1,39 +1,53 @@
-
-/* Tailwind-importer */
+/* Tailwind directives - se till att dessa är först */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Egna CSS-variabler */
+/* Egna CSS-variabler - UPPDATERADE */
 :root {
-  --background: #ffffff;
+  --background: linear-gradient(to bottom, white, rgb(239 246 255), rgb(219 234 254));
   --foreground: #171717;
-  --font-sans: 'Arial', Helvetica, sans-serif; /* byt till Geist Sans om du har den */
-  --font-mono: 'Courier New', monospace;       /* byt till Geist Mono om du vill */
+  --font-sans: 'Arial', Helvetica, sans-serif;
+  --font-mono: 'Courier New', monospace;
 }
 
-/* Dark mode */
+/* Dark mode - UPPDATERADE */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: linear-gradient(to bottom, #111827, #1f2937, #111827);
     --foreground: #ededed;
   }
 }
 
-/* Bas-styling för body */
+/* Bas-styling för body - FÖRBÄTTRAD */
 body {
-  background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
+  width: 100%;
+  min-height: 100vh;
 }
 
-/* Exempel på hur man kan kombinera Tailwind och CSS-variabler */
+/* Mobile-first fixes */
+@media (max-width: 768px) {
+  body {
+    background: var(--background) !important;
+    background-attachment: fixed !important;
+  }
+}
+
+/* Säkerställ att gradients fungerar på alla enheter */
 .bg-custom {
-  background-color: var(--background);
+  background: var(--background);
 }
 
 .text-custom {
   color: var(--foreground);
+}
+
+/* Fix för Tailwind gradients på mobil */
+.min-h-screen {
+  min-height: 100vh;
+  width: 100%;
 }
