@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/components/CartContext";
 import { useState } from "react";
-import { CartItem as CartItemType, Product } from "@/types/types";
+import { CartItem as CartItemType } from "@/types/types";
 
 export default function CartPage() {
   const { cartItems, removeFromCart, updateQuantity } = useCart();

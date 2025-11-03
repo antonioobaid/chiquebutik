@@ -2,7 +2,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { supabaseServer } from "@/lib/supabaseServerClient";
-import { Product, Favorite } from "@/types/types";
 
 // 🔹 POST - Toggle favorit (lägg till eller ta bort)
 export async function POST(req: Request) {
@@ -60,8 +59,9 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ success: true, added: true, favorite: data }, { status: 200 });
-  } catch (err: any) {
-    console.error("Server error (POST):", err);
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Unknown error occurred";
+    console.error("Server error (POST):", errorMessage);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

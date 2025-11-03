@@ -1,4 +1,4 @@
-// app/api/contact/route.ts
+// app/api/kontakt/route.ts
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServerClient';
 
@@ -14,6 +14,15 @@ if (RESEND_API_KEY) {
   } catch (error) {
     console.error('❌ Failed to initialize Resend:', error);
   }
+}
+
+// Interface för email options
+interface EmailOptions {
+  from: string;
+  to: string;
+  replyTo?: string;
+  subject: string;
+  html: string;
 }
 
 export async function POST(request: Request) {
@@ -62,8 +71,12 @@ export async function POST(request: Request) {
       try {
         console.log('🔄 Försöker skicka email...');
         
-        // Type assertion för Resend instance
-        const resendInstance = resend as { emails: { send: (options: any) => Promise<any> } };
+        // Type assertion för Resend instance med korrekta typer
+        const resendInstance = resend as { 
+          emails: { 
+            send: (options: EmailOptions) => Promise<unknown> 
+          } 
+        };
         
         // Skicka till ägaren
         const ownerResult = await resendInstance.emails.send({
