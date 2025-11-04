@@ -3,23 +3,21 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Egna CSS-variabler - UPPDATERADE */
+/* Egna CSS-variabler - ENDAST för text och typsnitt */
 :root {
-  --background: linear-gradient(to bottom, white, rgb(239 246 255), rgb(219 234 254));
   --foreground: #171717;
   --font-sans: 'Arial', Helvetica, sans-serif;
   --font-mono: 'Courier New', monospace;
 }
 
-/* Dark mode - UPPDATERADE */
+/* Dark mode - ENDAST för text */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: linear-gradient(to bottom, #111827, #1f2937, #111827);
     --foreground: #ededed;
   }
 }
 
-/* Bas-styling för body - FÖRBÄTTRAD */
+/* Bas-styling för body - ENDAST för text och layout */
 body {
   color: var(--foreground);
   font-family: var(--font-sans);
@@ -29,25 +27,11 @@ body {
   min-height: 100vh;
 }
 
-/* Mobile-first fixes */
-@media (max-width: 768px) {
-  body {
-    background: var(--background) !important;
-    background-attachment: fixed !important;
-  }
+/* Optional: Om du vill använda Geist typsnitten */
+.font-geist-sans {
+  font-family: var(--font-geist-sans), sans-serif;
 }
 
-/* Säkerställ att gradients fungerar på alla enheter */
-.bg-custom {
-  background: var(--background);
-}
-
-.text-custom {
-  color: var(--foreground);
-}
-
-/* Fix för Tailwind gradients på mobil */
-.min-h-screen {
-  min-height: 100vh;
-  width: 100%;
+.font-geist-mono {
+  font-family: var(--font-geist-mono), monospace;
 }

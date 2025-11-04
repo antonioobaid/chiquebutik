@@ -9,13 +9,13 @@ import { CartProvider } from "@/components/CartContext";
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
-  display: 'swap', // ✅ Lägg till denna
+  display: 'swap',
 });
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono", 
   subsets: ["latin"],
-  display: 'swap', // ✅ Lägg till denna
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -30,7 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="sv">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gradient-to-b from-white via-blue-50 to-blue-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900`}>
         <ClerkProvider>
           <CartProvider>
             <Navbar />

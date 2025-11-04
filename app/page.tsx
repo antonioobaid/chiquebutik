@@ -222,7 +222,7 @@ export default function Home() {
               </Link>
               <Link
                 href="/kontakt"
-                className="px-6 py-3 sm:px-8 sm:py-4 border-2 border-gray-900 dark:border-gray-300 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto text-center"
+                className="px-6 py-3 sm:px-8 sm:py-4 border-2 bg border-gray-900 dark:border-gray-300 text-gray-900 dark:text-white font-semibold rounded-xl hover:bg-gray-900 dark:hover:bg-gray-100 hover:text-white dark:hover:text-gray-900 transition-all duration-300 transform hover:scale-105 text-sm sm:text-base w-full sm:w-auto text-center"
               >
                 Få Stilrådgivning
               </Link>

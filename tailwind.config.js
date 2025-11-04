@@ -1,8 +1,10 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
-    "./components/**/*.{js,ts,jsx,tsx}"
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx}", // Lägg till denna om du använder pages-mapp
+    "./src/**/*.{js,ts,jsx,tsx}"    // Lägg till denna om du använder src-mapp
   ],
   theme: {
     extend: {
