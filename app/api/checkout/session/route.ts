@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+/*import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -32,6 +32,52 @@ export async function GET(req: NextRequest) {
     console.error("❌ Error fetching Stripe session:", err);
     
     // Type-safe error handling
+    let errorMessage = "Internal Server Error";
+    if (err instanceof Error) {
+      errorMessage = err.message;
+    }
+    
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
+  }
+}*/
+
+
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-09-30.clover",
+});
+
+export async function GET(req: NextRequest) {
+  try {
+    const url = new URL(req.url);
+    const sessionId = url.searchParams.get("session_id");
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: "session_id is required" },
+        { status: 400 }
+      );
+    }
+
+    console.log('🔍 Fetching session:', sessionId);
+
+    // 🔍 Hämtar session från Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: [
+        "line_items.data.price.product",
+        "payment_intent",
+        "customer",
+      ],
+    });
+
+    console.log('✅ Session retrieved successfully');
+    return NextResponse.json({ session });
+    
+  } catch (err: unknown) {
+    console.error("❌ Error fetching Stripe session:", err);
+    
     let errorMessage = "Internal Server Error";
     if (err instanceof Error) {
       errorMessage = err.message;
