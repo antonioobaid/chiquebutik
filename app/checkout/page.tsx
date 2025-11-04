@@ -33,6 +33,26 @@ export default function CheckoutPage() {
     if (cartItems.length === 0) return;
     setLoading(true);
 
+     console.log('🔍 Checkout Debug - Frontend:', {
+    cartItemsCount: cartItems.length,
+    userId: userId,
+    email: userEmail,
+    cartItems: cartItems.map(item => ({
+      id: item.id,
+      product_id: item.product_id,
+      quantity: item.quantity,
+      size: item.size,
+      product: {
+        id: item.products?.id,
+        title: item.products?.title,
+        price: item.products?.price,
+        stripe_price_id: item.products?.stripe_price_id,
+        image_url: item.products?.image_url
+      }
+    }))
+  });
+
+
     try {
       const res = await fetch("/api/checkout", {
         method: "POST",
@@ -43,6 +63,12 @@ export default function CheckoutPage() {
           email: userEmail,
         }),
       });
+
+       if (!res.ok) {
+      const errorData = await res.json();
+      console.error('❌ API Error Response:', errorData);
+      throw new Error(errorData.details || errorData.error || 'Unknown API error');
+    }
 
       const data = await res.json();
 
