@@ -319,9 +319,12 @@ export default function Navbar() {
                   <SignedIn>
                     <div className="space-y-3">
                       <div className="flex items-center gap-4 px-4 py-3">
-                        <img 
-                          src={user?.imageUrl} 
+                        {/* ✅ FIXAD: Bytte ut img mot Image komponent */}
+                        <Image 
+                          src={user?.imageUrl || "/default-avatar.png"} 
                           alt="Profile" 
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full border-2 border-blue-500"
                         />
                         <div>

@@ -121,8 +121,9 @@ export default function ProductCard({ product, isFavorite: initialFavorite = fal
                 Slut i lager
               </h3>
               
+              {/* ✅ FIXAD: Escapade citationstecken */}
               <p className="text-gray-600 dark:text-gray-300 mb-2">
-                <span className="font-semibold">"{product.title}"</span>
+                <span className="font-semibold">&ldquo;{product.title}&rdquo;</span>
               </p>
               
               <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
