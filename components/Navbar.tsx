@@ -15,12 +15,10 @@ export default function Navbar() {
 
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Product[]>([]);
   const searchRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 🔹 Live-sök med debounce
@@ -51,16 +49,12 @@ export default function Navbar() {
         setQuery("");
         setResults([]);
       }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
-        setUserMenuOpen(false);
-      }
     };
     
     const handleEscapeKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false);
         setSearchOpen(false);
-        setUserMenuOpen(false);
       }
     };
 
@@ -78,7 +72,6 @@ export default function Navbar() {
     setQuery("");
     setResults([]);
     setMobileMenuOpen(false);
-    setUserMenuOpen(false);
   }, [pathname]);
 
   // 🔹 Låsa scroll när mobile menu är öppen
@@ -94,10 +87,9 @@ export default function Navbar() {
     };
   }, [mobileMenuOpen]);
 
-  // 🔹 Hantera utloggning
+  // 🔹 Hantera utloggning för mobile
   const handleSignOut = async () => {
     await signOut();
-    setUserMenuOpen(false);
     setMobileMenuOpen(false);
     router.push('/');
   };
@@ -178,7 +170,7 @@ export default function Navbar() {
           </div>
         )}
 
-        {/* 🔹 Desktop navigation */}
+        {/* 🔹 Desktop navigation - ORIGINAL med Clerk UserButton */}
         <nav className="hidden md:flex items-center gap-5">
           <button
             onClick={() => setSearchOpen(!searchOpen)}
@@ -212,48 +204,20 @@ export default function Navbar() {
           </SignedOut>
 
           <SignedIn>
-            {/* Custom User Menu för desktop */}
-            <div className="relative" ref={userMenuRef}>
-              <button
-                onClick={() => setUserMenuOpen(!userMenuOpen)}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-gray-800 transition"
-              >
-                <img 
-                  src={user?.imageUrl} 
-                  alt="Profile" 
-                  className="w-8 h-8 rounded-full border-2 border-blue-500"
-                />
-                <span className="text-gray-700 dark:text-gray-200">
-                  {user?.firstName || 'Profil'}
-                </span>
-              </button>
-
-              {/* Custom User Dropdown - bara Logga ut */}
-              {userMenuOpen && (
-                <div className="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
-                  <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-700">
-                    <p className="font-medium text-gray-900 dark:text-white">
-                      {user?.fullName}
-                    </p>
-                    <p className="text-sm text-gray-500 truncate">
-                      {user?.primaryEmailAddress?.emailAddress}
-                    </p>
-                  </div>
-                  
-                  <button
-                    onClick={handleSignOut}
-                    className="flex items-center gap-3 w-full px-4 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition"
-                  >
-                    <LogOut size={18} />
-                    <span>Logga ut</span>
-                  </button>
-                </div>
-              )}
-            </div>
+            {/* ORIGINAL Clerk UserButton för desktop */}
+            <UserButton
+              appearance={{ 
+                elements: { 
+                  avatarBox: "w-9 h-9 border-2 border-blue-500 rounded-full shadow-md",
+                  userButtonTrigger: "focus:shadow-none"
+                } 
+              }}
+              afterSignOutUrl="/"
+            />
           </SignedIn>
         </nav>
 
-        {/* 🔹 Mobile navigation */}
+        {/* 🔹 Mobile navigation - FORTFARANDE med vår anpassade menu */}
         <div className="flex md:hidden items-center gap-4">
           {/* Sök-knappen - alltid synlig till höger */}
           <button
