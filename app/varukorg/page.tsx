@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/components/CartContext";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CartItem as CartItemType } from "@/types/types";
 
 export default function CartPage() {
@@ -73,7 +73,7 @@ export default function CartPage() {
 
           {/* Order summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4 sm:top-6 md:top-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 md:p-8">
+            <div className="sticky top-4 sm:top-6 md:top-8 bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 p-4 sm:p-6 md:p-8 z-10">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
                 Ordersammanfattning
               </h2>
@@ -116,7 +116,7 @@ export default function CartPage() {
     </div>
   );
 }
-// ✅ Uppdaterad CartItem-komponent med mobiloptimering
+// ✅ Uppdaterad CartItem-komponent med modal för mobil
 function CartItem({
   item,
   onUpdateQuantity,
@@ -127,7 +127,22 @@ function CartItem({
   onRemove: (id: number) => void;
 }) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const quantityOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Stäng dropdown när man klickar utanför
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleQuantitySelect = (newQuantity: number) => {
     onUpdateQuantity(item.id, newQuantity);
@@ -178,7 +193,7 @@ function CartItem({
         {/* Antal + totalpris - FIXAD för mobil */}
         <div className="flex items-center justify-between gap-2">
           {/* Antal dropdown - tar inte hela bredden */}
-          <div className="relative flex-shrink-0">
+          <div className="relative flex-shrink-0" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className="flex items-center gap-1 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:border-pink-300 dark:hover:border-purple-400 transition-colors text-sm sm:text-base min-w-[100px] sm:min-w-[120px] justify-between"
@@ -195,22 +210,28 @@ function CartItem({
             </button>
 
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-full sm:w-32 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-2xl z-50 max-h-48 overflow-y-auto">
-                {quantityOptions.map((quantity) => (
-                  <button
-                    key={quantity}
-                    onClick={() => handleQuantitySelect(quantity)}
-                    className={`w-full px-3 py-2 text-left transition-colors text-sm sm:text-base ${
-                      quantity === item.quantity
-                        ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold"
-                        : "hover:bg-gradient-to-r hover:from-pink-50 hover:to-purple-50 dark:hover:from-pink-900/20 dark:hover:to-purple-900/20 text-gray-700 dark:text-gray-300"
-                    }`}
-                  >
-                    {quantity} st
-                  </button>
-                ))}
-              </div>
-            )}
+                <div className="fixed inset-0 z-[9999] lg:absolute lg:inset-auto lg:top-full lg:left-0 lg:mt-1">
+                  {/* Overlay som täcker allt på mobil */}
+                  <div className="absolute inset-0 bg-transparent lg:hidden" onClick={() => setIsDropdownOpen(false)}></div>
+                  
+                  {/* Dropdown menu */}
+                  <div className="absolute bottom-4 left-4 right-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-2xl max-h-48 overflow-y-auto lg:relative lg:bottom-auto lg:left-auto lg:right-auto lg:w-32">
+                    {[1, 2, 3, 4].map((quantity) => (
+                      <button
+                        key={quantity}
+                        onClick={() => handleQuantitySelect(quantity)}
+                        className={`w-full px-3 py-2 text-left transition-colors text-sm ${
+                          quantity === item.quantity
+                            ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white font-semibold"
+                            : "hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300"
+                        }`}
+                      >
+                        {quantity} st
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}     
           </div>
 
           {/* Totalpris - under antal på mobil, bredvid på desktop */}

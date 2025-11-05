@@ -111,25 +111,28 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-purple-900">
+     
       {/* Header */}
       <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
-        <div className="max-w-6xl mx-auto px-6 py-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">C</span>
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                <span className="text-white font-bold text-sm sm:text-lg">C</span>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Checkout</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">{totalItems} produkter • {total} kr</p>
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white truncate">Checkout</h1>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 truncate">
+                  {totalItems} {totalItems === 1 ? 'produkt' : 'produkter'} • {total} kr
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 text-sm">
+            <div className="hidden sm:flex items-center space-x-4 text-sm">
               <span className="text-gray-500 dark:text-gray-400">Säker betalning</span>
               <div className="flex space-x-2">
-                <div className="w-8 h-5 bg-gray-300 rounded"></div>
-                <div className="w-8 h-5 bg-gray-300 rounded"></div>
-                <div className="w-8 h-5 bg-gray-300 rounded"></div>
+                <div className="w-6 h-4 sm:w-8 sm:h-5 bg-gray-300 rounded"></div>
+                <div className="w-6 h-4 sm:w-8 sm:h-5 bg-gray-300 rounded"></div>
+                <div className="w-6 h-4 sm:w-8 sm:h-5 bg-gray-300 rounded"></div>
               </div>
             </div>
           </div>
